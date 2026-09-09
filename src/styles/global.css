@@ -166,8 +166,25 @@ body {
 @media (min-width: 1024px) {
   .hero-split {
     grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.9fr);
-    gap: 4rem;
+    grid-template-areas:
+      "title rail"
+      "board rail";
+    gap: 1.75rem 4rem;
     align-items: start;
+  }
+
+  .hero-title {
+    grid-area: title;
+  }
+
+  .hero-rail {
+    grid-area: rail;
+    position: sticky;
+    top: 72px;
+  }
+
+  .hero-board {
+    grid-area: board;
   }
 }
 
