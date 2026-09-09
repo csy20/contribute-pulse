@@ -28,7 +28,10 @@ const nextCrawl = nextCrawlLabel();
         Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
         maintainer activity and room for contributors.
       </p>
-      <form class="hero-search mt-7" action={pathTo("")} method="get" role="search">
+    </div>
+
+    <div class="hero-rail">
+      <form class="hero-search" action={pathTo("")} method="get" role="search">
         <div class="search-wrap">
           <label class="sr-only" for="home-search">Search the board</label>
           <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -57,9 +60,8 @@ const nextCrawl = nextCrawlLabel();
           ))
         }
       </div>
-    </div>
 
-    <aside class="pulse-card" aria-label="Pulse status">
+      <aside class="pulse-card mt-5" aria-label="Pulse status">
       <p class="eyebrow">Pulse</p>
       <p class="mt-2 font-mono text-4xl tabular-nums tracking-tight text-ink sm:text-5xl">{pulse.repoCount}</p>
       <p class="mt-1 text-sm text-moss">repos on the board</p>
@@ -96,7 +98,8 @@ const nextCrawl = nextCrawlLabel();
           See how Pulse scores
         </a>
       </p>
-    </aside>
+      </aside>
+    </div>
   </section>
 
   <section data-search-results hidden class="mt-14">
@@ -120,35 +123,33 @@ const nextCrawl = nextCrawlLabel();
   </section>
 
   <div data-home-default>
-    <div class="home-board mt-14 sm:mt-16">
-      <aside class="home-cats">
-        <p class="eyebrow">Browse</p>
-        <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
-        <nav class="cat-rail mt-4" aria-label="Categories">
-          {
-            counts.map((cat) => (
-              <a class="cat-chip" href={categoryPath(cat.slug)}>
-                <span class="min-w-0 truncate">{cat.name}</span>
-                <span class="n">{cat.count}</span>
-              </a>
-            ))
-          }
-        </nav>
-      </aside>
+    <section class="mt-14 sm:mt-16">
+      <p class="eyebrow">Browse</p>
+      <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
+      <nav class="cat-strip mt-4" aria-label="Categories">
+        {
+          counts.map((cat) => (
+            <a class="cat-chip" href={categoryPath(cat.slug)}>
+              <span>{cat.name}</span>
+              <span class="n">{cat.count}</span>
+            </a>
+          ))
+        }
+      </nav>
+    </section>
 
-      <section class="home-featured">
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p class="eyebrow">Board</p>
-            <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
-          </div>
-          <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
+    <section class="mt-10 sm:mt-12">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="eyebrow">Board</p>
+          <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
         </div>
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {featured.map((repo) => <RepoCard repo={repo} />)}
-        </div>
-      </section>
-    </div>
+        <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
+      </div>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {featured.map((repo) => <RepoCard repo={repo} />)}
+      </div>
+    </section>
 
     <section class="mt-16 sm:mt-20">
       <p class="eyebrow">Method</p>
