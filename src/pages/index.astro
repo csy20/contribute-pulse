@@ -3,13 +3,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import RepoCard from "../components/RepoCard.astro";
 import { categoryCounts, featuredRepos, latest } from "../lib/data.ts";
 import { categoryPath, pathTo } from "../lib/paths.ts";
-import { relativeTime } from "../lib/format.ts";
+import { nextCrawlLabel, relativeTime } from "../lib/format.ts";
 import { CATEGORY_MARK } from "../lib/ui.ts";
 
 const counts = categoryCounts();
 const featured = featuredRepos();
 const q = Astro.url.searchParams.get("q") ?? "";
 const examples = ["pytorch vision", "rust cli", "android", "good first issue"];
+const nextCrawl = nextCrawlLabel();
 ---
 
 <BaseLayout title="Contribute Pulse" searchValue={q} home>
@@ -17,6 +18,7 @@ const examples = ["pytorch vision", "rust cli", "android", "good first issue"];
     <p class="eyebrow">
       <span class="live-dot" aria-hidden="true"></span>
       Updated <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>
+      · <span data-next-crawl>{nextCrawl}</span>
       · {latest.repoCount} repos
     </p>
     <h1 class="mt-4 font-display text-[2.25rem] leading-[1.12] sm:text-[3.5rem]">
@@ -61,38 +63,40 @@ const examples = ["pytorch vision", "rust cli", "android", "good first issue"];
   </section>
 
   <div data-home-default>
-    <section class="mt-16 sm:mt-20">
-      <p class="eyebrow">Browse</p>
-      <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
-      <ul class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-        {
-          counts.map((cat) => (
-            <li>
-              <a href={categoryPath(cat.slug)} class="cat-tile">
-                <span class="cat-mark">{CATEGORY_MARK[cat.slug]}</span>
-                <span class="min-w-0 flex-1">
-                  <span class="block truncate text-sm font-medium text-ink">{cat.name}</span>
-                  <span class="mt-0.5 block font-mono text-xs tabular-nums text-moss">{cat.count}</span>
-                </span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
+    <div class="home-board mt-14 sm:mt-16">
+      <aside class="home-cats">
+        <p class="eyebrow">Browse</p>
+        <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
+        <ul class="cat-rail mt-4">
+          {
+            counts.map((cat) => (
+              <li>
+                <a href={categoryPath(cat.slug)} class="cat-tile">
+                  <span class="cat-mark">{CATEGORY_MARK[cat.slug]}</span>
+                  <span class="min-w-0 flex-1 truncate text-sm font-medium text-ink">{cat.name}</span>
+                  <span class="font-mono text-xs tabular-nums text-moss">{cat.count}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </aside>
 
-    <section class="mt-16 sm:mt-20">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="eyebrow">Board</p>
-          <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
+      <section class="home-featured">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="eyebrow">Board</p>
+            <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
+          </div>
+          <p class="text-sm text-moss">
+            Top 8 · <span data-next-crawl>{nextCrawl}</span>
+          </p>
         </div>
-        <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
-      </div>
-      <div class="mt-6 grid gap-3 sm:grid-cols-2">
-        {featured.map((repo) => <RepoCard repo={repo} />)}
-      </div>
-    </section>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          {featured.map((repo) => <RepoCard repo={repo} />)}
+        </div>
+      </section>
+    </div>
 
     <section class="mt-16 sm:mt-20">
       <p class="eyebrow">Method</p>

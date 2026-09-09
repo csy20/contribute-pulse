@@ -26,6 +26,30 @@ export function formatScore(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
+/** Daily crawl hour (UTC), matches `.github/workflows/update-data.yml`. */
+export const CRAWL_HOUR_UTC = 2;
+
+export function nextCrawlDate(now = Date.now()): Date {
+  const d = new Date(now);
+  const next = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), CRAWL_HOUR_UTC, 0, 0, 0));
+  if (next.getTime() <= now) next.setUTCDate(next.getUTCDate() + 1);
+  return next;
+}
+
+export function formatDurationUntil(target: Date, now = Date.now()): string {
+  const ms = target.getTime() - now;
+  if (ms <= 60_000) return "soon";
+  const mins = Math.round(ms / 60_000);
+  if (mins < 60) return `in ${mins}m`;
+  const hours = Math.round(mins / 60);
+  if (hours < 48) return `in ${hours}h`;
+  return `in ${Math.round(hours / 24)}d`;
+}
+
+export function nextCrawlLabel(now = Date.now()): string {
+  return `Next crawl ${formatDurationUntil(nextCrawlDate(now), now)}`;
+}
+
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (ch) => {
     switch (ch) {

@@ -1,4 +1,5 @@
 import type { LatestData } from "../../scripts/types.ts";
+import { nextCrawlLabel } from "./format.ts";
 import { dataUrl } from "./render-card.ts";
 
 let cache: LatestData | null = null;
@@ -25,6 +26,9 @@ export async function loadLatest(fallback: LatestData): Promise<LatestData> {
 
 export function hydrateRelativeTimes(root: ParentNode = document): void {
   const now = Date.now();
+  root.querySelectorAll<HTMLElement>("[data-next-crawl]").forEach((el) => {
+    el.textContent = nextCrawlLabel(now);
+  });
   root.querySelectorAll<HTMLTimeElement>("time[data-relative]").forEach((el) => {
     const iso = el.dateTime || el.getAttribute("datetime");
     if (!iso) return;
