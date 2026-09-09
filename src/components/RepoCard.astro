@@ -3,7 +3,7 @@ import { CATEGORY_NAME } from "../../scripts/types.ts";
 import type { Repo } from "../../scripts/types.ts";
 import { formatScore, formatStars, relativeTime } from "../lib/format.ts";
 import { categoryPath, repoPath } from "../lib/paths.ts";
-import { avatarUrl, languageColor } from "../lib/ui.ts";
+import { avatarSrcSet, avatarUrl, languageColor, scoreCapsuleClass } from "../lib/ui.ts";
 
 interface Props {
   repo: Repo;
@@ -20,6 +20,8 @@ const langColor = languageColor(repo.language);
     <a class="flex min-w-0 items-center gap-2.5" href={repo.url} rel="noopener noreferrer">
       <img
         src={avatarUrl(repo.owner, 64)}
+        srcset={avatarSrcSet(repo.owner)}
+        sizes="28px"
         alt=""
         width="28"
         height="28"
@@ -32,14 +34,14 @@ const langColor = languageColor(repo.language);
       </span>
     </a>
     <span
-      class="score-capsule"
-      title={`Contribute score ${formatScore(repo.contributeScore)} — freshness and maintainer activity weighted highest`}
+      class={scoreCapsuleClass(repo.contributeScore)}
+      title={`Contribute score ${formatScore(repo.contributeScore)} out of 100 — freshness and maintainer activity weighted highest`}
     >
-      {formatScore(repo.contributeScore)}
+      {formatScore(repo.contributeScore)}<span class="score-unit">/100</span>
     </span>
   </div>
 
-  <p class="line-clamp-2 text-sm leading-snug text-moss">{repo.description}</p>
+  <p class="line-clamp-2 text-sm leading-snug text-moss" title={repo.description}>{repo.description}</p>
 
   <div class="flex flex-wrap gap-1.5">
     {
@@ -89,7 +91,7 @@ const langColor = languageColor(repo.language);
   </div>
 
   <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2">
-    <a class="btn-ghost h-8 text-xs" href={repo.url} rel="noopener noreferrer">Open GitHub</a>
+    <a class="btn-ghost text-xs" href={repo.url} rel="noopener noreferrer">Open on GitHub</a>
     {
       issue && (
         <a class="text-sm text-moss hover:text-ink hover:underline" href={issue.url} rel="noopener noreferrer">

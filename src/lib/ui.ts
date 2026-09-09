@@ -56,4 +56,12 @@ export function avatarUrl(owner: string, size = 64): string {
   return `https://github.com/${encodeURIComponent(owner)}.png?size=${size}`;
 }
 
+export function avatarSrcSet(owner: string): string {
+  return `${avatarUrl(owner, 40)} 40w, ${avatarUrl(owner, 80)} 80w`;
+}
+
+export function scoreCapsuleClass(score: number): string {
+  return score >= 90 ? "score-capsule score-capsule--hot" : "score-capsule";
+}
+
 export const PULSE_TICK = `<svg class="why-tick" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M1 6h2.1l1-3.2L6.2 10l1.3-4H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;

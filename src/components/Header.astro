@@ -9,11 +9,8 @@ interface Props {
 const { searchValue = "", home = false } = Astro.props;
 ---
 
-<header
-  data-header
-  class="sticky top-0 z-30 border-b border-line/80 bg-canvas/80 backdrop-blur-md"
->
-  <div class="mx-auto flex h-[52px] max-w-[1120px] items-center gap-3 px-5 sm:h-14 sm:px-8">
+<header data-header class="sticky top-0 z-30 border-b border-line/80 bg-canvas/80 backdrop-blur-md">
+  <nav class="mx-auto flex h-[52px] max-w-[1120px] items-center gap-3 px-5 sm:h-14 sm:px-8" aria-label="Primary">
     <a href={pathTo("")} class="flex min-w-0 items-center gap-2 text-ink hover:text-ink">
       <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
         <path
@@ -25,15 +22,15 @@ const { searchValue = "", home = false } = Astro.props;
           stroke-linejoin="round"></path>
       </svg>
       <span class="truncate text-[15px] tracking-tight">
-        <span class="font-medium">Contribute</span>
-        <span class="font-display ml-1 text-[1.15rem] leading-none">Pulse</span>
+        <span class="hidden font-medium min-[420px]:inline">Contribute</span>
+        <span class="font-display text-[1.15rem] leading-none min-[420px]:ml-1">Pulse</span>
       </span>
     </a>
 
     {
       !home && (
         <form class="search-wrap min-w-0 flex-1" action={pathTo("")} method="get" role="search">
-          <label class="sr-only" for="header-search">Search repositories</label>
+          <label class="sr-only" for="header-search">Search the board</label>
           <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
             <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
@@ -44,19 +41,16 @@ const { searchValue = "", home = false } = Astro.props;
             type="search"
             name="q"
             value={searchValue}
-            placeholder="Search the board"
-            class="field h-9 pl-8 text-sm"
+            placeholder="Search"
+            class="field h-11 min-h-11 pl-8 text-sm"
             autocomplete="off"
           />
         </form>
       )
     }
 
-    <a
-      href={pathTo("about/")}
-      class="ml-auto shrink-0 text-sm text-moss hover:text-ink"
-    >
+    <a href={pathTo("about/")} class="ml-auto inline-flex min-h-11 shrink-0 items-center text-sm text-moss hover:text-ink">
       About
     </a>
-  </div>
+  </nav>
 </header>

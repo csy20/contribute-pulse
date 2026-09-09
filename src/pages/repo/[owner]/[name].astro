@@ -101,7 +101,9 @@ const langColor = languageColor(repo.language);
     <aside class="lg:sticky lg:top-[72px]">
       <div class="score-capsule score-capsule-lg w-full items-start">
         <p class="eyebrow w-full">Contribute score</p>
-        <p class="score-num">{formatScore(repo.contributeScore)}</p>
+        <p class="score-num">
+          {formatScore(repo.contributeScore)}<span class="score-unit text-[1rem]">/100</span>
+        </p>
         {
           repo.signalConfidence === "low" && (
             <p class="mt-1 text-xs leading-relaxed text-moss">Maintainer activity estimated from push recency.</p>

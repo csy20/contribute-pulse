@@ -14,7 +14,7 @@ const nextCrawl = nextCrawlLabel();
 ---
 
 <BaseLayout title="Contribute Pulse" searchValue={q} home>
-  <section class="max-w-xl">
+  <section class="hero-in max-w-xl">
     <p class="eyebrow">
       <span class="live-dot" aria-hidden="true"></span>
       Updated <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>
@@ -28,22 +28,25 @@ const nextCrawl = nextCrawlLabel();
       Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
       maintainer activity and room for contributors.
     </p>
-    <form class="search-wrap mt-7" action={pathTo("")} method="get" role="search">
-      <label class="sr-only" for="home-search">Search the board</label>
-      <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
-        <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-      </svg>
-      <input
-        id="home-search"
-        data-home-search
-        type="search"
-        name="q"
-        value={q}
-        placeholder="pytorch vision, rust cli, android"
-        class="field field-lg"
-        autocomplete="off"
-      />
+    <form class="hero-search mt-7" action={pathTo("")} method="get" role="search">
+      <div class="search-wrap">
+        <label class="sr-only" for="home-search">Search the board</label>
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
+          <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+        </svg>
+        <input
+          id="home-search"
+          data-home-search
+          type="search"
+          name="q"
+          value={q}
+          placeholder="pytorch vision, rust cli, android"
+          class="field field-lg"
+          autocomplete="off"
+        />
+      </div>
+      <button type="submit" class="btn-primary">Search the board</button>
     </form>
     <div class="mt-3 flex flex-wrap gap-1.5">
       {
@@ -58,7 +61,21 @@ const nextCrawl = nextCrawlLabel();
 
   <section data-search-results hidden class="mt-14">
     <p class="eyebrow">Search</p>
-    <h2 data-search-heading class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Search results</h2>
+    <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
+      <h2 data-search-heading class="font-display text-[1.65rem] sm:text-[1.75rem]" aria-live="polite">
+        Search results
+      </h2>
+      <label class="grid gap-1 text-[11px] uppercase tracking-[0.12em] text-moss">
+        Sort
+        <select data-search-sort class="field h-11 min-w-[11rem] text-sm text-ink">
+          <option value="score">Best to contribute</option>
+          <option value="stars">Most stars</option>
+          <option value="pushed">Recently pushed</option>
+          <option value="issues">Most open starter issues</option>
+        </select>
+      </label>
+    </div>
+    <div data-search-cats class="mt-3 flex flex-wrap gap-1.5"></div>
     <div data-search-grid class="mt-6 grid gap-3 sm:grid-cols-2"></div>
   </section>
 
