@@ -1,0 +1,138 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import ScoreBars from "../../../components/ScoreBars.astro";
+import { CATEGORY_NAME } from "../../../../scripts/types.ts";
+import { latest } from "../../../lib/data.ts";
+import { formatScore, formatStars, relativeTime } from "../../../lib/format.ts";
+import { categoryPath, pathTo } from "../../../lib/paths.ts";
+
+export function getStaticPaths() {
+  return latest.repos.map((repo) => ({
+    params: { owner: repo.owner, name: repo.name },
+    props: { repo },
+  }));
+}
+
+const { repo } = Astro.props;
+---
+
+<BaseLayout title={`${repo.fullName} · Contribute Pulse`} description={repo.description}>
+  <p class="text-xs uppercase tracking-[0.18em] text-moss">
+    <a class="hover:text-ink" href={pathTo("")}>Board</a>
+    ·
+    <a class="hover:text-ink" href={categoryPath(repo.primaryCategory)}>{CATEGORY_NAME[repo.primaryCategory]}</a>
+  </p>
+
+  <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="max-w-2xl">
+      <h1 class="font-display text-4xl tracking-tight">{repo.fullName}</h1>
+      <p class="mt-3 text-base leading-relaxed text-moss">{repo.description}</p>
+    </div>
+    <div class="shrink-0 rounded-2xl border border-line bg-panel px-4 py-3 text-right">
+      <p class="text-xs uppercase tracking-[0.16em] text-moss">Contribute score</p>
+      <p class="font-mono text-4xl text-lime">{formatScore(repo.contributeScore)}</p>
+    </div>
+  </div>
+
+  <div class="mt-5 flex flex-wrap gap-2">
+    {repo.language && <span class="pill">{repo.language}</span>}
+    {repo.license && <span class="pill">{repo.license}</span>}
+    {
+      repo.categories.map((c) => (
+        <a class="pill hover:text-ink" href={categoryPath(c)}>
+          {CATEGORY_NAME[c]}
+        </a>
+      ))
+    }
+    {repo.famousHard && <span class="pill text-danger">Famous but hard</span>}
+  </div>
+
+  <p class="mt-4 text-sm text-moss">
+    ★ {formatStars(repo.stars)}
+    · {repo.forks} forks
+    · {repo.openIssues} open issues
+    · pushed <time datetime={repo.pushedAt} data-relative>{relativeTime(repo.pushedAt)}</time>
+    {
+      repo.signalConfidence === "low" && (
+        <span> · maintainer signal estimated</span>
+      )
+    }
+  </p>
+
+  <p class="mt-5 flex flex-wrap gap-4">
+    <a class="text-lime hover:underline" href={repo.url} rel="noopener noreferrer">GitHub repository</a>
+    {
+      repo.homepage && (
+        <a class="text-moss hover:text-ink" href={repo.homepage} rel="noopener noreferrer">
+          Homepage
+        </a>
+      )
+    }
+  </p>
+
+  <section class="mt-10 grid gap-8 lg:grid-cols-2">
+    <div>
+      <h2 class="font-display text-2xl">Why it scored well</h2>
+      <ul class="mt-4 space-y-2 text-sm leading-relaxed">
+        {repo.why.map((item) => <li class="text-ink">· {item}</li>)}
+      </ul>
+      {
+        repo.riskFlags.length > 0 && (
+          <div class="mt-6">
+            <h3 class="text-sm uppercase tracking-[0.14em] text-moss">Risk flags</h3>
+            <ul class="mt-2 space-y-2 text-sm text-danger">
+              {repo.riskFlags.map((item) => (
+                <li>· {item}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+    <div class="card">
+      <h2 class="font-display text-2xl">Score breakdown</h2>
+      <div class="mt-4">
+        <ScoreBars breakdown={repo.scoreBreakdown} />
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="font-display text-2xl">Topics</h2>
+    <div class="mt-3 flex flex-wrap gap-1.5">
+      {
+        repo.topics.length ? (
+          repo.topics.map((t) => <span class="pill">{t}</span>)
+        ) : (
+          <p class="text-sm text-moss">No topics listed on GitHub.</p>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="font-display text-2xl">Recommended issues</h2>
+    <p class="mt-2 text-sm text-moss">Issues stay on GitHub. Read the thread before starting work.</p>
+    <ul class="mt-4 grid gap-2">
+      {
+        repo.issues.map((issue) => (
+          <li class="card">
+            <a class="font-medium hover:text-lime" href={issue.url} rel="noopener noreferrer">
+              #{issue.number} {issue.title}
+            </a>
+            <p class="mt-2 flex flex-wrap gap-1.5">
+              {issue.labels.map((label) => (
+                <span class="pill">{label}</span>
+              ))}
+            </p>
+            <p class="mt-2 text-xs text-moss">
+              updated <time datetime={issue.updatedAt} data-relative>{relativeTime(issue.updatedAt)}</time>
+              · {issue.comments} {issue.comments === 1 ? "comment" : "comments"}
+              {issue.isAssigned ? " · assigned" : " · unassigned"}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>

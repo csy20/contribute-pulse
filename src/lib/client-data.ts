@@ -1,0 +1,51 @@
+import type { LatestData } from "../../scripts/types.ts";
+import { dataUrl } from "./render-card.ts";
+
+let cache: LatestData | null = null;
+let inflight: Promise<LatestData> | null = null;
+
+export async function loadLatest(fallback: LatestData): Promise<LatestData> {
+  if (cache) return cache;
+  if (!inflight) {
+    inflight = fetch(dataUrl())
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`latest.json ${res.status}`);
+        const json = (await res.json()) as LatestData;
+        if (!Array.isArray(json.repos)) throw new Error("invalid latest.json");
+        cache = json;
+        return json;
+      })
+      .catch(() => {
+        cache = fallback;
+        return fallback;
+      });
+  }
+  return inflight;
+}
+
+export function hydrateRelativeTimes(root: ParentNode = document): void {
+  const now = Date.now();
+  root.querySelectorAll<HTMLTimeElement>("time[data-relative]").forEach((el) => {
+    const iso = el.dateTime || el.getAttribute("datetime");
+    if (!iso) return;
+    const then = new Date(iso).getTime();
+    if (Number.isNaN(then)) return;
+    const diff = now - then;
+    const mins = Math.round(diff / 60_000);
+    let label = "just now";
+    if (Math.abs(mins) >= 1 && Math.abs(mins) < 60) label = `${mins}m ago`;
+    else if (Math.abs(mins) >= 60) {
+      const hours = Math.round(mins / 60);
+      if (Math.abs(hours) < 24) label = `${hours}h ago`;
+      else {
+        const days = Math.round(hours / 24);
+        if (Math.abs(days) < 45) label = `${days}d ago`;
+        else {
+          const months = Math.round(days / 30);
+          label = Math.abs(months) < 18 ? `${months}mo ago` : `${Math.round(days / 365)}y ago`;
+        }
+      }
+    }
+    el.textContent = label;
+  });
+}

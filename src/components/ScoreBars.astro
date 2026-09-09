@@ -1,0 +1,39 @@
+---
+import type { ScoreBreakdown } from "../../scripts/types.ts";
+
+interface Props {
+  breakdown: ScoreBreakdown;
+}
+
+const { breakdown } = Astro.props;
+
+const rows: { key: keyof ScoreBreakdown; label: string; weight: string }[] = [
+  { key: "freshness", label: "Freshness", weight: "28%" },
+  { key: "maintainerSignal", label: "Maintainer signal", weight: "24%" },
+  { key: "issueQuality", label: "Issue quality", weight: "20%" },
+  { key: "starBand", label: "Star band", weight: "18%" },
+  { key: "projectHealth", label: "Project health", weight: "10%" },
+];
+---
+
+<div class="grid gap-3">
+  {
+    rows.map((row) => {
+      const value = breakdown[row.key];
+      return (
+        <div>
+          <div class="mb-1 flex items-baseline justify-between gap-3 text-sm">
+            <span>
+              {row.label}
+              <span class="ml-2 text-xs text-moss">{row.weight}</span>
+            </span>
+            <span class="font-mono tabular-nums text-moss">{value.toFixed(0)}</span>
+          </div>
+          <div class="h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
+            <div class="h-full rounded-full bg-lime" style={`width: ${Math.max(0, Math.min(100, value))}%`} />
+          </div>
+        </div>
+      );
+    })
+  }
+</div>

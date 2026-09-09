@@ -1,0 +1,30 @@
+{
+  "name": "contribute-pulse",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Find a repo that is alive — and will notice your pull request.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "update-data": "tsx scripts/update-data.ts",
+    "test": "tsx --test scripts/scoring.test.ts scripts/category-map.test.ts"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.4.2",
+    "@octokit/graphql": "^8.2.2",
+    "astro": "^5.13.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/node": "^22.17.0",
+    "tailwindcss": "^4.1.12",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  }
+}

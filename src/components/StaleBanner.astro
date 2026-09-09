@@ -1,0 +1,30 @@
+---
+import { isStale } from "../lib/data.ts";
+
+interface Props {
+  generatedAt: string;
+  source: string;
+}
+
+const { generatedAt, source } = Astro.props;
+const stale = isStale(generatedAt);
+const sample = source === "sample";
+---
+
+{
+  (stale || sample) && (
+    <div class="border-b border-line bg-panel px-4 py-2 text-center text-sm text-moss sm:px-6">
+      {sample && (
+        <span>
+          Bundled sample data is showing until the next GitHub crawl.
+        </span>
+      )}
+      {stale && (
+        <span>
+          {sample ? " " : ""}
+          Board data is older than 36 hours — treat activity signals as stale.
+        </span>
+      )}
+    </div>
+  )
+}

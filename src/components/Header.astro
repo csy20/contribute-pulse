@@ -1,0 +1,43 @@
+---
+import { pathTo } from "../lib/paths.ts";
+
+interface Props {
+  searchValue?: string;
+}
+
+const { searchValue = "" } = Astro.props;
+---
+
+<header class="sticky top-0 z-30 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6">
+    <div class="flex items-center justify-between gap-3">
+      <a href={pathTo("")} class="flex items-center gap-2 text-ink hover:text-lime">
+        <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="6" fill="#12140f"></rect>
+          <path
+            d="M3 16h5l2.5-7 4 14 3-9 2 4H29"
+            stroke="#d6ff3a"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+        <span class="font-display text-lg tracking-tight">Contribute Pulse</span>
+      </a>
+      <a href={pathTo("about/")} class="text-sm text-moss hover:text-ink sm:hidden">About</a>
+    </div>
+    <form class="flex min-w-0 flex-1 items-center gap-3" action={pathTo("")} method="get" role="search">
+      <label class="sr-only" for="header-search">Search repositories</label>
+      <input
+        id="header-search"
+        data-header-search
+        type="search"
+        name="q"
+        value={searchValue}
+        placeholder="pytorch vision, rust cli, android"
+        class="w-full min-w-0 px-3 py-2 text-sm"
+        autocomplete="off"
+      />
+      <a href={pathTo("about/")} class="hidden shrink-0 text-sm text-moss hover:text-ink sm:inline">About</a>
+    </form>
+  </div>
+</header>

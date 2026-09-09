@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --color-canvas: #0b0c0a;
+  --color-panel: #12140f;
+  --color-panel-2: #191c14;
+  --color-line: #2c3024;
+  --color-line-strong: #3d4332;
+  --color-ink: #eef1e4;
+  --color-moss: #9aa186;
+  --color-lime: #d6ff3a;
+  --color-lime-dim: #a7c92a;
+  --color-danger: #ff8f6b;
+}
+
+html {
+  color-scheme: dark;
+  background: var(--color-canvas);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  min-height: 100dvh;
+  background: radial-gradient(1200px 500px at 10% -10%, #161a10 0%, transparent 55%),
+    var(--color-canvas);
+  color: var(--color-ink);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-lime) 35%, black);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 3px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.card {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  padding: 1rem 1.05rem 1.05rem;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.card:hover {
+  border-color: var(--color-line-strong);
+  background: var(--color-panel-2);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+  color: var(--color-moss);
+  background: color-mix(in srgb, var(--color-panel-2) 80%, black);
+}
+
+input[type="search"],
+input[type="number"],
+select {
+  background: var(--color-panel);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+}
+
+input[type="search"]::placeholder {
+  color: color-mix(in srgb, var(--color-moss) 80%, transparent);
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -40px;
+  z-index: 50;
+  background: var(--color-lime);
+  color: #111;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}

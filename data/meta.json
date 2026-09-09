@@ -1,0 +1,38 @@
+{
+  "generatedAt": "2026-09-09T21:36:46.978Z",
+  "nextUpdateHint": "Daily at 02:00 UTC",
+  "source": "github-actions",
+  "repoCount": 400,
+  "issueCount": 1585,
+  "filters": {
+    "minStars": 80,
+    "maxStarsDefault": 80000,
+    "maxPushAgeDays": 45,
+    "requireLicense": true,
+    "requireDescription": true,
+    "excludeForks": true,
+    "excludeArchived": true,
+    "contributorLabels": [
+      "good first issue",
+      "good-first-issue",
+      "first-timers-only",
+      "help wanted",
+      "help-wanted",
+      "beginner friendly",
+      "documentation",
+      "hacktoberfest"
+    ]
+  },
+  "scoring": {
+    "weights": {
+      "starBand": 0.18,
+      "freshness": 0.28,
+      "maintainerSignal": 0.24,
+      "issueQuality": 0.2,
+      "projectHealth": 0.1
+    },
+    "maxRepos": 400,
+    "maxReposPerCategory": 80,
+    "maxIssuesPerRepo": 5
+  }
+}

@@ -1,0 +1,55 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import StaleBanner from "../components/StaleBanner.astro";
+import { pathTo } from "../lib/paths.ts";
+import { latest } from "../lib/data.ts";
+
+interface Props {
+  title: string;
+  description?: string;
+  searchValue?: string;
+}
+
+const {
+  title,
+  description = "Find a repo that is alive — and will notice your pull request.",
+  searchValue = "",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://csy20.github.io").toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0c0a" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={pathTo("favicon.svg")} type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body class="font-sans antialiased">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header searchValue={searchValue} />
+    <StaleBanner generatedAt={latest.generatedAt} source={latest.source} />
+    <main id="main" class="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import { hydrateRelativeTimes } from "../lib/client-data.ts";
+      hydrateRelativeTimes();
+    </script>
+  </body>
+</html>
