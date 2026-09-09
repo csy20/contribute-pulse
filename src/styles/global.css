@@ -5,15 +5,15 @@
   --font-display: "Instrument Serif", ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 
-  --color-canvas: #070806;
-  --color-panel: #10120e;
-  --color-panel-2: #161914;
-  --color-line: #262920;
-  --color-line-strong: #3a3f32;
-  --color-ink: #f2f4ea;
-  --color-moss: #a3a990;
-  --color-lime: #d6ff3a;
-  --color-lime-dim: #7a9128;
+  --color-canvas: #0a0b09;
+  --color-panel: #131510;
+  --color-panel-2: #1a1d16;
+  --color-line: #2a2d24;
+  --color-line-strong: #3e4334;
+  --color-ink: #f1f0e6;
+  --color-moss: #9c9e90;
+  --color-lime: #c5de6a;
+  --color-lime-dim: #7d8c42;
   --color-danger: #ff8f6b;
   --color-good: #9dffa6;
 }
@@ -47,7 +47,7 @@ html {
 body {
   min-height: 100dvh;
   background:
-    radial-gradient(900px 420px at 50% -8%, rgba(18, 22, 12, 0.9) 0%, transparent 62%),
+    radial-gradient(900px 420px at 50% -8%, rgba(20, 24, 14, 0.85) 0%, transparent 62%),
     var(--color-canvas);
   color: var(--color-ink);
 }
@@ -175,7 +175,7 @@ body {
     grid-template-areas:
       "title rail"
       "board rail";
-    gap: 1.75rem 4rem;
+    gap: 2.75rem 4rem;
     align-items: start;
   }
 
@@ -216,7 +216,7 @@ body {
   background: var(--color-panel);
   border: 1px solid var(--color-line);
   border-radius: 12px;
-  padding: 1.25rem 1.35rem 1.35rem;
+  padding: 1.5rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -225,7 +225,7 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.6rem 0;
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--color-line);
   font-size: 0.875rem;
 }
@@ -237,15 +237,15 @@ body {
 .cat-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .cat-chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 2.5rem;
-  padding: 0 0.8rem;
+  gap: 0.5rem;
+  min-height: 2.65rem;
+  padding: 0 0.95rem;
   border: 1px solid var(--color-line);
   border-radius: 999px;
   background: var(--color-panel);
@@ -354,7 +354,7 @@ body {
 
 .btn-primary {
   background: var(--color-lime);
-  color: #111;
+  color: #14160f;
   border: 1px solid var(--color-lime);
 }
 
@@ -594,7 +594,7 @@ select.field {
   top: -40px;
   z-index: 50;
   background: var(--color-lime);
-  color: #111;
+  color: #14160f;
   padding: 0.4rem 0.7rem;
   border-radius: 8px;
 }
