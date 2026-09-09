@@ -5,6 +5,7 @@ import { CATEGORY_NAME } from "../../../../scripts/types.ts";
 import { latest } from "../../../lib/data.ts";
 import { formatScore, formatStars, relativeTime } from "../../../lib/format.ts";
 import { categoryPath, pathTo } from "../../../lib/paths.ts";
+import { avatarUrl, languageColor } from "../../../lib/ui.ts";
 
 export function getStaticPaths() {
   return latest.repos.map((repo) => ({
@@ -14,91 +15,165 @@ export function getStaticPaths() {
 }
 
 const { repo } = Astro.props;
+const langColor = languageColor(repo.language);
 ---
 
 <BaseLayout title={`${repo.fullName} · Contribute Pulse`} description={repo.description}>
-  <p class="text-xs uppercase tracking-[0.18em] text-moss">
+  <p class="eyebrow">
     <a class="hover:text-ink" href={pathTo("")}>Board</a>
-    ·
+    <span class="mx-2 text-line-strong">/</span>
     <a class="hover:text-ink" href={categoryPath(repo.primaryCategory)}>{CATEGORY_NAME[repo.primaryCategory]}</a>
+    <span class="mx-2 text-line-strong">/</span>
+    {repo.name}
   </p>
 
-  <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div class="max-w-2xl">
-      <h1 class="font-display text-4xl tracking-tight">{repo.fullName}</h1>
-      <p class="mt-3 text-base leading-relaxed text-moss">{repo.description}</p>
-    </div>
-    <div class="shrink-0 rounded-2xl border border-line bg-panel px-4 py-3 text-right">
-      <p class="text-xs uppercase tracking-[0.16em] text-moss">Contribute score</p>
-      <p class="font-mono text-4xl text-lime">{formatScore(repo.contributeScore)}</p>
-    </div>
-  </div>
-
-  <div class="mt-5 flex flex-wrap gap-2">
-    {repo.language && <span class="pill">{repo.language}</span>}
-    {repo.license && <span class="pill">{repo.license}</span>}
-    {
-      repo.categories.map((c) => (
-        <a class="pill hover:text-ink" href={categoryPath(c)}>
-          {CATEGORY_NAME[c]}
-        </a>
-      ))
-    }
-    {repo.famousHard && <span class="pill text-danger">Famous but hard</span>}
-  </div>
-
-  <p class="mt-4 text-sm text-moss">
-    ★ {formatStars(repo.stars)}
-    · {repo.forks} forks
-    · {repo.openIssues} open issues
-    · pushed <time datetime={repo.pushedAt} data-relative>{relativeTime(repo.pushedAt)}</time>
-    {
-      repo.signalConfidence === "low" && (
-        <span> · maintainer signal estimated</span>
-      )
-    }
-  </p>
-
-  <p class="mt-5 flex flex-wrap gap-4">
-    <a class="text-lime hover:underline" href={repo.url} rel="noopener noreferrer">GitHub repository</a>
-    {
-      repo.homepage && (
-        <a class="text-moss hover:text-ink" href={repo.homepage} rel="noopener noreferrer">
-          Homepage
-        </a>
-      )
-    }
-  </p>
-
-  <section class="mt-10 grid gap-8 lg:grid-cols-2">
+  <div class="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
     <div>
-      <h2 class="font-display text-2xl">Why it scored well</h2>
-      <ul class="mt-4 space-y-2 text-sm leading-relaxed">
-        {repo.why.map((item) => <li class="text-ink">· {item}</li>)}
+      <div class="flex items-start gap-3.5">
+        <img
+          src={avatarUrl(repo.owner, 80)}
+          alt=""
+          width="40"
+          height="40"
+          class="h-10 w-10 rounded-lg bg-panel-2"
+        />
+        <div class="min-w-0">
+          <p class="text-sm text-moss">{repo.owner}</p>
+          <h1 class="font-display text-[2.15rem] leading-[1.1] tracking-tight sm:text-5xl">{repo.name}</h1>
+        </div>
+      </div>
+      <p class="mt-4 max-w-[40em] text-base leading-relaxed text-moss">{repo.description}</p>
+
+      <div class="mt-5 flex flex-wrap gap-1.5">
+        {
+          repo.language && (
+            <span class="pill">
+              <span class="lang-dot" style={`background:${langColor}`}></span>
+              {repo.language}
+            </span>
+          )
+        }
+        {repo.license && <span class="pill">{repo.license}</span>}
+        {
+          repo.categories.map((c) => (
+            <a class="pill hover:text-ink" href={categoryPath(c)}>
+              {CATEGORY_NAME[c]}
+            </a>
+          ))
+        }
+        {repo.hasContributing && <span class="pill">CONTRIBUTING.md</span>}
+        {repo.famousHard && <span class="pill text-danger">Famous but hard</span>}
+      </div>
+
+      <div class="stat-strip mt-6">
+        <div class="meta-cell">
+          <span class="lbl">Stars</span>
+          <span class="val text-sm">{formatStars(repo.stars)}</span>
+        </div>
+        <div class="meta-cell">
+          <span class="lbl">Forks</span>
+          <span class="val text-sm">{formatStars(repo.forks)}</span>
+        </div>
+        <div class="meta-cell">
+          <span class="lbl">Open issues</span>
+          <span class="val text-sm">{repo.openIssues}</span>
+        </div>
+        <div class="meta-cell">
+          <span class="lbl">Last push</span>
+          <span class="val text-sm">
+            <time datetime={repo.pushedAt} data-relative>{relativeTime(repo.pushedAt)}</time>
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-2">
+        <a class="btn-primary w-full sm:w-auto" href={repo.url} rel="noopener noreferrer">Open on GitHub</a>
+        {
+          repo.homepage && (
+            <a class="btn-ghost w-full sm:w-auto" href={repo.homepage} rel="noopener noreferrer">
+              Homepage
+            </a>
+          )
+        }
+      </div>
+    </div>
+
+    <aside class="lg:sticky lg:top-[72px]">
+      <div class="score-capsule score-capsule-lg w-full items-start">
+        <p class="eyebrow w-full">Contribute score</p>
+        <p class="score-num">{formatScore(repo.contributeScore)}</p>
+        {
+          repo.signalConfidence === "low" && (
+            <p class="mt-1 text-xs leading-relaxed text-moss">Maintainer activity estimated from push recency.</p>
+          )
+        }
+      </div>
+      <div class="mt-5">
+        <ScoreBars breakdown={repo.scoreBreakdown} />
+      </div>
+      <ul class="mt-6 space-y-2.5">
+        {
+          repo.why.map((item) => (
+            <li class="flex gap-2 text-sm leading-snug text-ink/90">
+              <svg class="why-tick" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path
+                  d="M1 6h2.1l1-3.2L6.2 10l1.3-4H11"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+              </svg>
+              <span>{item}</span>
+            </li>
+          ))
+        }
       </ul>
       {
         repo.riskFlags.length > 0 && (
-          <div class="mt-6">
-            <h3 class="text-sm uppercase tracking-[0.14em] text-moss">Risk flags</h3>
-            <ul class="mt-2 space-y-2 text-sm text-danger">
+          <div class="risk-panel mt-5">
+            <p class="eyebrow text-danger">Risk flags</p>
+            <ul class="mt-2 space-y-1.5 text-sm text-danger">
               {repo.riskFlags.map((item) => (
-                <li>· {item}</li>
+                <li>{item}</li>
               ))}
             </ul>
           </div>
         )
       }
-    </div>
-    <div class="card">
-      <h2 class="font-display text-2xl">Score breakdown</h2>
-      <div class="mt-4">
-        <ScoreBars breakdown={repo.scoreBreakdown} />
-      </div>
-    </div>
+    </aside>
+  </div>
+
+  <section class="mt-14">
+    <h2 class="font-display text-[1.65rem]">Recommended issues</h2>
+    <p class="mt-2 text-sm text-moss">Issues stay on GitHub. Read the thread before starting work.</p>
+    <ul class="mt-4">
+      {
+        repo.issues.map((issue) => (
+          <li>
+            <a class="issue-row" href={issue.url} rel="noopener noreferrer">
+              <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span class="font-mono text-sm text-lime-dim">#{issue.number}</span>
+                <span class="issue-title font-medium text-ink/90">{issue.title}</span>
+              </p>
+              <p class="mt-2 flex flex-wrap gap-1.5">
+                {issue.labels.map((label) => (
+                  <span class="pill">{label}</span>
+                ))}
+              </p>
+              <p class="mt-2 text-xs text-moss">
+                updated <time datetime={issue.updatedAt} data-relative>{relativeTime(issue.updatedAt)}</time>
+                · {issue.comments} {issue.comments === 1 ? "comment" : "comments"}
+                {issue.isAssigned ? " · assigned" : " · unassigned"}
+              </p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </section>
 
-  <section class="mt-10">
-    <h2 class="font-display text-2xl">Topics</h2>
+  <section class="mt-12">
+    <h2 class="font-display text-[1.65rem]">Topics</h2>
     <div class="mt-3 flex flex-wrap gap-1.5">
       {
         repo.topics.length ? (
@@ -108,31 +183,5 @@ const { repo } = Astro.props;
         )
       }
     </div>
-  </section>
-
-  <section class="mt-10">
-    <h2 class="font-display text-2xl">Recommended issues</h2>
-    <p class="mt-2 text-sm text-moss">Issues stay on GitHub. Read the thread before starting work.</p>
-    <ul class="mt-4 grid gap-2">
-      {
-        repo.issues.map((issue) => (
-          <li class="card">
-            <a class="font-medium hover:text-lime" href={issue.url} rel="noopener noreferrer">
-              #{issue.number} {issue.title}
-            </a>
-            <p class="mt-2 flex flex-wrap gap-1.5">
-              {issue.labels.map((label) => (
-                <span class="pill">{label}</span>
-              ))}
-            </p>
-            <p class="mt-2 text-xs text-moss">
-              updated <time datetime={issue.updatedAt} data-relative>{relativeTime(issue.updatedAt)}</time>
-              · {issue.comments} {issue.comments === 1 ? "comment" : "comments"}
-              {issue.isAssigned ? " · assigned" : " · unassigned"}
-            </p>
-          </li>
-        ))
-      }
-    </ul>
   </section>
 </BaseLayout>

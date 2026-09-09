@@ -73,6 +73,12 @@ export function initBoard() {
   form.addEventListener("change", () => {
     loadLatest(EMPTY).then(render);
   });
+  grid.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest("[data-clear-filters]")) return;
+    form.reset();
+    loadLatest(EMPTY).then(render);
+  });
 
   loadLatest(EMPTY).then(render);
 }

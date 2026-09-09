@@ -1,39 +1,82 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { pathTo } from "../lib/paths.ts";
+
+const recipe = [
+  { signal: "Star band", weight: "18%", measures: "Mid-size repos (about 300–15k stars) score highest. Mega-repos are penalized." },
+  { signal: "Freshness", weight: "28%", measures: "Last push in the last week scores 100; older than 45 days is excluded." },
+  { signal: "Maintainer signal", weight: "24%", measures: "Recent merged PRs, CONTRIBUTING.md, code of conduct, and a penalty if open PRs dwarf recent merges." },
+  { signal: "Issue quality", weight: "20%", measures: "Starter-style issues that are recent, unassigned, and not already crowded with comments." },
+  { signal: "Project health", weight: "10%", measures: "License, topics, README, plus a weak forks/watchers signal." },
+];
+
+const filters = [
+  "Public, not archived, not a fork",
+  "Has a license, a description, and a default branch",
+  "Pushed in the last 45 days",
+  "80–80,000 stars (mega-repos only via “Famous but hard”)",
+  "At least one open issue labeled good first issue, help wanted, first-timers-only, beginner friendly, documentation, or hacktoberfest",
+];
 ---
 
 <BaseLayout title="About · Contribute Pulse" description="How Contribute Pulse ranks repositories, what the crawl includes, and how to fall off the board.">
   <article class="max-w-2xl">
-    <h1 class="font-display text-4xl tracking-tight">About the board</h1>
+    <p class="eyebrow">About</p>
+    <h1 class="mt-3 font-display text-4xl tracking-tight sm:text-5xl">About the board</h1>
     <p class="mt-4 text-base leading-relaxed text-moss">
       Contribute Pulse is a static discovery board for public GitHub repositories that are popular
       enough to matter, active enough that a pull request can actually get reviewed, and labeled
       enough that a new contributor has a place to start.
     </p>
 
-    <h2 class="mt-10 font-display text-2xl">How scoring works</h2>
+    <h2 class="mt-12 font-display text-[1.65rem]">Score recipe</h2>
     <p class="mt-3 text-sm leading-relaxed text-moss">
-      Each listed repo gets a contribute score from 0–100. It is a weighted sum of five signals:
+      Each listed repo gets a contribute score from 0–100. It is a weighted sum of five signals.
     </p>
-    <ul class="mt-4 space-y-2 text-sm leading-relaxed text-moss">
-      <li><span class="text-ink">18% star band</span> — mid-size repos (about 300–15k stars) score highest. Mega-repos are penalized.</li>
-      <li><span class="text-ink">28% freshness</span> — last push in the last week scores 100; older than 45 days is excluded.</li>
-      <li><span class="text-ink">24% maintainer signal</span> — recent merged PRs, CONTRIBUTING.md, code of conduct, and a penalty if open PRs dwarf recent merges.</li>
-      <li><span class="text-ink">20% issue quality</span> — starter-style issues that are recent, unassigned, and not already crowded with comments.</li>
-      <li><span class="text-ink">10% project health</span> — license, topics, README, plus a weak forks/watchers signal.</li>
+    <div class="mt-5 overflow-x-auto">
+      <table class="recipe-table">
+        <thead>
+          <tr>
+            <th>Signal</th>
+            <th>Weight</th>
+            <th>What it measures</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            recipe.map((row) => (
+              <tr>
+                <td class="text-ink">{row.signal}</td>
+                <td class="font-mono tabular-nums text-moss">{row.weight}</td>
+                <td class="text-moss">{row.measures}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="mt-12 font-display text-[1.65rem]">Hard filters</h2>
+    <p class="mt-3 text-sm leading-relaxed text-moss">A repository is listed only if all of these hold:</p>
+    <ul class="mt-4 space-y-2.5">
+      {
+        filters.map((item) => (
+          <li class="check-row">
+            <svg class="tick" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path
+                d="M1 6h2.1l1-3.2L6.2 10l1.3-4H11"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"></path>
+            </svg>
+            <span>{item}</span>
+          </li>
+        ))
+      }
     </ul>
 
-    <h2 class="mt-10 font-display text-2xl">Hard filters</h2>
-    <p class="mt-3 text-sm leading-relaxed text-moss">
-      A repository is listed only if it is public, not archived, not a fork, has a license, has a
-      description, has a default branch, was pushed in the last 45 days, has between 80 and 80,000
-      stars (unless you turn on “Famous but hard”), and has at least one open issue labeled good
-      first issue, help wanted, first-timers-only, beginner friendly, documentation, or
-      hacktoberfest.
-    </p>
-
-    <h2 class="mt-10 font-display text-2xl">Caveats</h2>
+    <h2 class="mt-12 font-display text-[1.65rem]">Caveats</h2>
     <ul class="mt-4 space-y-2 text-sm leading-relaxed text-moss">
       <li>Data is delayed up to 24 hours. The crawl runs daily at 02:00 UTC.</li>
       <li>Labels are imperfect. Maintainers reuse names, and GitHub search misses some of them.</li>
@@ -42,21 +85,23 @@ import { pathTo } from "../lib/paths.ts";
       <li>Merged-PR counts are sampled from the GraphQL API. When that sample is thin, maintainer activity is estimated from push recency.</li>
     </ul>
 
-    <h2 class="mt-10 font-display text-2xl">How to get listed</h2>
+    <h2 class="mt-12 font-display text-[1.65rem]">How to get listed</h2>
     <p class="mt-3 text-sm leading-relaxed text-moss">
       There is no submit form in v1. If a public repository matches the filters on the next daily
       crawl, it can appear. Topics, a license, a CONTRIBUTING.md, and a genuine starter issue help.
     </p>
 
-    <h2 class="mt-10 font-display text-2xl">How to be excluded</h2>
+    <h2 class="mt-12 font-display text-[1.65rem]">How to be excluded</h2>
     <p class="mt-3 text-sm leading-relaxed text-moss">
       Archive the repository, remove the license, or go quiet for 45 days and it will drop off the
       next crawl. To request a removal from a current board snapshot, open an issue on
-      <a class="text-lime hover:underline" href="https://github.com/csy20/contribute-pulse">the project repo</a>.
+      <a class="text-ink/80 underline decoration-line underline-offset-2 hover:text-ink" href="https://github.com/csy20/contribute-pulse">
+        the project repo
+      </a>.
     </p>
 
-    <p class="mt-10 text-sm">
-      <a class="text-lime hover:underline" href={pathTo("")}>Back to the board</a>
+    <p class="mt-12">
+      <a class="btn-ghost" href={pathTo("")}>Back to the board</a>
     </p>
   </article>
 </BaseLayout>

@@ -73,6 +73,16 @@ export function initHomeSearch() {
     });
   }
 
+  document.querySelectorAll<HTMLButtonElement>("[data-search-chip]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const value = chip.dataset.searchChip ?? "";
+      input.value = value;
+      if (headerInput) headerInput.value = value;
+      input.focus();
+      void run(value);
+    });
+  });
+
   if (initial) void run(initial);
   else void loadLatest(EMPTY);
 }

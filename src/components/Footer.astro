@@ -5,15 +5,26 @@ import { relativeTime } from "../lib/format.ts";
 ---
 
 <footer class="border-t border-line">
-  <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-moss sm:flex-row sm:items-center sm:justify-between sm:px-6">
+  <div
+    class="mx-auto grid max-w-[1120px] gap-6 px-5 py-10 text-sm text-moss sm:grid-cols-3 sm:px-8"
+  >
+    <p>
+      <span class="font-medium text-ink/80">Contribute</span>
+      <span class="font-display ml-1 text-ink">Pulse</span>
+      <span class="mt-1 block max-w-xs leading-relaxed">
+        A static board of repos that are alive enough to notice a pull request.
+      </span>
+    </p>
     <p>
       Data generated
       <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>.
-      Next crawl daily at 02:00 UTC.
+      <span class="block">Next crawl daily at 02:00 UTC.</span>
     </p>
-    <p class="flex flex-wrap gap-x-4 gap-y-1">
-      <a class="hover:text-ink" href={pathTo("about/")}>How scoring works</a>
-      <a class="hover:text-ink" href="https://github.com/csy20/contribute-pulse">Source</a>
+    <p class="flex flex-wrap gap-x-5 gap-y-1 sm:justify-end">
+      <a class="text-ink/80 hover:text-ink hover:underline" href={pathTo("about/")}>About</a>
+      <a class="text-ink/80 hover:text-ink hover:underline" href="https://github.com/csy20/contribute-pulse">
+        Source
+      </a>
       <span>MIT</span>
     </p>
   </div>

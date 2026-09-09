@@ -16,21 +16,25 @@ const rows: { key: keyof ScoreBreakdown; label: string; weight: string }[] = [
 ];
 ---
 
-<div class="grid gap-3">
+<div class="grid gap-3.5">
   {
     rows.map((row) => {
       const value = breakdown[row.key];
+      const width = Math.max(0, Math.min(100, value));
       return (
-        <div>
-          <div class="mb-1 flex items-baseline justify-between gap-3 text-sm">
+        <div
+          role="img"
+          aria-label={`${row.label} ${value.toFixed(0)} of 100, weight ${row.weight}`}
+        >
+          <div class="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
             <span>
               {row.label}
               <span class="ml-2 text-xs text-moss">{row.weight}</span>
             </span>
-            <span class="font-mono tabular-nums text-moss">{value.toFixed(0)}</span>
+            <span class="font-mono text-xs tabular-nums text-moss">{value.toFixed(0)}</span>
           </div>
-          <div class="h-1.5 overflow-hidden rounded-full bg-line" aria-hidden="true">
-            <div class="h-full rounded-full bg-lime" style={`width: ${Math.max(0, Math.min(100, value))}%`} />
+          <div class="score-track">
+            <div class="score-fill" style={`width: ${width}%`}></div>
           </div>
         </div>
       );

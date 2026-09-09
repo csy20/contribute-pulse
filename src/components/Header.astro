@@ -3,41 +3,60 @@ import { pathTo } from "../lib/paths.ts";
 
 interface Props {
   searchValue?: string;
+  home?: boolean;
 }
 
-const { searchValue = "" } = Astro.props;
+const { searchValue = "", home = false } = Astro.props;
 ---
 
-<header class="sticky top-0 z-30 border-b border-line/80 bg-canvas/90 backdrop-blur-md">
-  <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4 sm:px-6">
-    <div class="flex items-center justify-between gap-3">
-      <a href={pathTo("")} class="flex items-center gap-2 text-ink hover:text-lime">
-        <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="6" fill="#12140f"></rect>
-          <path
-            d="M3 16h5l2.5-7 4 14 3-9 2 4H29"
-            stroke="#d6ff3a"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"></path>
-        </svg>
-        <span class="font-display text-lg tracking-tight">Contribute Pulse</span>
-      </a>
-      <a href={pathTo("about/")} class="text-sm text-moss hover:text-ink sm:hidden">About</a>
-    </div>
-    <form class="flex min-w-0 flex-1 items-center gap-3" action={pathTo("")} method="get" role="search">
-      <label class="sr-only" for="header-search">Search repositories</label>
-      <input
-        id="header-search"
-        data-header-search
-        type="search"
-        name="q"
-        value={searchValue}
-        placeholder="pytorch vision, rust cli, android"
-        class="w-full min-w-0 px-3 py-2 text-sm"
-        autocomplete="off"
-      />
-      <a href={pathTo("about/")} class="hidden shrink-0 text-sm text-moss hover:text-ink sm:inline">About</a>
-    </form>
+<header
+  data-header
+  class="sticky top-0 z-30 border-b border-line/80 bg-canvas/80 backdrop-blur-md"
+>
+  <div class="mx-auto flex h-[52px] max-w-[1120px] items-center gap-3 px-5 sm:h-14 sm:px-8">
+    <a href={pathTo("")} class="flex min-w-0 items-center gap-2 text-ink hover:text-ink">
+      <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path
+          d="M3 16h5l2.5-7 4 14 3-9 2 4H29"
+          stroke="currentColor"
+          class="text-lime"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+      </svg>
+      <span class="truncate text-[15px] tracking-tight">
+        <span class="font-medium">Contribute</span>
+        <span class="font-display ml-1 text-[1.15rem] leading-none">Pulse</span>
+      </span>
+    </a>
+
+    {
+      !home && (
+        <form class="search-wrap min-w-0 flex-1" action={pathTo("")} method="get" role="search">
+          <label class="sr-only" for="header-search">Search repositories</label>
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
+            <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+          </svg>
+          <input
+            id="header-search"
+            data-header-search
+            type="search"
+            name="q"
+            value={searchValue}
+            placeholder="Search the board"
+            class="field h-9 pl-8 text-sm"
+            autocomplete="off"
+          />
+        </form>
+      )
+    }
+
+    <a
+      href={pathTo("about/")}
+      class="ml-auto shrink-0 text-sm text-moss hover:text-ink"
+    >
+      About
+    </a>
   </div>
 </header>

@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import RepoCard from "../../components/RepoCard.astro";
 import { CATEGORY_DEFS, reposForCategory } from "../../lib/data.ts";
 import { languagesIn } from "../../lib/search.ts";
+import { pathTo } from "../../lib/paths.ts";
 import type { CategorySlug } from "../../../scripts/types.ts";
 
 export function getStaticPaths() {
@@ -17,64 +18,91 @@ const repos = reposForCategory(def.slug as CategorySlug);
 const languages = languagesIn(repos);
 ---
 
-<BaseLayout title={`${def.name} · Contribute Pulse`} description={`Active repositories in ${def.name} that still review pull requests.`}>
+<BaseLayout
+  title={`${def.name} · Contribute Pulse`}
+  description={`Active repositories in ${def.name} that still review pull requests.`}
+>
   <section data-board data-category={def.slug}>
-    <p class="text-xs uppercase tracking-[0.18em] text-moss">Category</p>
-    <div class="mt-2 flex flex-wrap items-end justify-between gap-3">
-      <h1 class="font-display text-4xl tracking-tight">{def.name}</h1>
-      <p data-count class="font-mono text-sm text-moss">{repos.length} {repos.length === 1 ? "repo" : "repos"}</p>
+    <p class="eyebrow">
+      <a class="hover:text-ink" href={pathTo("")}>Board</a>
+      <span class="mx-2 text-line-strong">/</span>
+      {def.name}
+    </p>
+    <div class="mt-3 flex flex-wrap items-end justify-between gap-3">
+      <h1 class="font-display text-4xl tracking-tight sm:text-5xl">{def.name}</h1>
+      <p data-count class="font-mono text-sm tabular-nums text-moss">
+        {repos.length} {repos.length === 1 ? "repo" : "repos"}
+      </p>
     </div>
-    <p class="mt-3 max-w-2xl text-moss">
+    <p class="mt-3 max-w-2xl text-sm leading-relaxed text-moss sm:text-base">
       Ranked by contribution-worthiness, not star count. Default view hides mega-repos.
     </p>
 
-    <form data-filters class="mt-6 grid gap-3 rounded-2xl border border-line bg-panel p-3 sm:grid-cols-2 lg:grid-cols-4">
-      <label class="grid gap-1 text-xs text-moss">
+    <form data-filters class="filter-bar mt-6 flex flex-wrap items-end gap-2.5">
+      <label class="grid min-w-[9rem] flex-1 gap-1 text-[11px] uppercase tracking-[0.12em] text-moss sm:max-w-[12rem]">
         Language
-        <select name="language" class="px-2 py-2 text-sm text-ink">
+        <select name="language" class="field h-9 text-sm text-ink">
           <option value="">Any language</option>
           {languages.map((lang) => <option value={lang}>{lang}</option>)}
         </select>
       </label>
-      <label class="grid gap-1 text-xs text-moss">
-        Min stars
-        <input type="number" name="minStars" min="0" inputmode="numeric" class="px-2 py-2 text-sm" placeholder="80" />
-      </label>
-      <label class="grid gap-1 text-xs text-moss">
-        Max stars
-        <input type="number" name="maxStars" min="0" inputmode="numeric" class="px-2 py-2 text-sm" placeholder="80000" />
-      </label>
-      <label class="grid gap-1 text-xs text-moss">
+      <fieldset class="grid gap-1 text-[11px] uppercase tracking-[0.12em] text-moss">
+        <legend class="mb-1">Stars</legend>
+        <div class="flex items-center gap-1.5">
+          <input
+            type="number"
+            name="minStars"
+            min="0"
+            inputmode="numeric"
+            class="field h-9 w-[5.5rem] text-sm"
+            placeholder="80"
+            aria-label="Minimum stars"
+          />
+          <span class="text-moss">–</span>
+          <input
+            type="number"
+            name="maxStars"
+            min="0"
+            inputmode="numeric"
+            class="field h-9 w-[5.5rem] text-sm"
+            placeholder="80k"
+            aria-label="Maximum stars"
+          />
+        </div>
+      </fieldset>
+      <label class="grid min-w-[10rem] flex-1 gap-1 text-[11px] uppercase tracking-[0.12em] text-moss sm:max-w-[14rem]">
         Sort
-        <select name="sort" class="px-2 py-2 text-sm text-ink">
+        <select name="sort" class="field h-9 text-sm text-ink">
           <option value="score">Best to contribute</option>
           <option value="stars">Most stars</option>
           <option value="pushed">Recently pushed</option>
           <option value="issues">Most open starter issues</option>
         </select>
       </label>
-      <label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
-        <input type="checkbox" name="beginnerOnly" class="accent-lime" />
-        Beginner friendly only
-      </label>
-      <label class="flex items-center gap-2 text-sm text-ink">
-        <input type="checkbox" name="hasContributing" class="accent-lime" />
-        Has CONTRIBUTING.md
-      </label>
-      <label class="flex items-center gap-2 text-sm text-ink">
-        <input type="checkbox" name="famousHard" class="accent-lime" />
-        Famous but hard
-      </label>
+      <div class="flex flex-wrap items-center gap-1.5 pb-0.5">
+        <label class="chip">
+          <input type="checkbox" name="beginnerOnly" class="sr-only" />
+          Beginner friendly
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="hasContributing" class="sr-only" />
+          Has CONTRIBUTING.md
+        </label>
+        <label class="chip">
+          <input type="checkbox" name="famousHard" class="sr-only" />
+          Famous but hard
+        </label>
+      </div>
     </form>
 
-    <div data-grid class="mt-6 grid gap-3 sm:grid-cols-2">
+    <div data-grid class="mt-2 grid gap-3 sm:grid-cols-2">
       {
         repos.length ? (
           repos.map((repo) => <RepoCard repo={repo} />)
         ) : (
-          <div class="card col-span-full text-center">
-            <p class="font-display text-xl">Nothing here yet</p>
-            <p class="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-moss">
+          <div class="card col-span-full py-10 text-center">
+            <p class="font-display text-[1.65rem] tracking-tight">Nothing here yet</p>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-moss">
               Nothing in this category right now. The daily crawl only keeps licensed, recently
               pushed projects with starter labels.
             </p>
