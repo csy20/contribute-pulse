@@ -157,6 +157,12 @@ body {
   }
 }
 
+.hero-heading {
+  width: 100%;
+  max-width: none;
+  text-wrap: balance;
+}
+
 .hero-split {
   display: grid;
   gap: 2rem;
@@ -175,6 +181,8 @@ body {
 
   .hero-title {
     grid-area: title;
+    min-width: 0;
+    width: 100%;
   }
 
   .hero-rail {
