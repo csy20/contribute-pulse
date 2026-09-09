@@ -45,7 +45,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://csy20.githu
     <a class="skip-link" href="#main">Skip to content</a>
     <Header searchValue={searchValue} home={home} />
     <StaleBanner generatedAt={latest.generatedAt} source={latest.source} />
-    <main id="main" class="mx-auto w-full max-w-[1120px] px-5 pb-20 pt-8 sm:px-8 sm:pt-10">
+    <main id="main" class="shell pb-20 pt-8 sm:pt-10">
       <slot />
     </main>
     <Footer />

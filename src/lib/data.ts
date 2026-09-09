@@ -31,6 +31,16 @@ export function categoryCounts(repos: Repo[] = latest.repos) {
   }));
 }
 
+export function pulseStats(repos: Repo[] = latest.repos) {
+  const board = defaultBoard(repos);
+  return {
+    repoCount: latest.repoCount || board.length,
+    issueCount: latest.issueCount || board.reduce((n, r) => n + r.issues.length, 0),
+    languages: new Set(board.map((r) => r.language).filter(Boolean)).size,
+    contributing: board.filter((r) => r.hasContributing).length,
+  };
+}
+
 export function findRepo(owner: string, name: string, repos: Repo[] = latest.repos): Repo | undefined {
   const key = `${owner}/${name}`.toLowerCase();
   return repos.find((r) => r.fullName.toLowerCase() === key);

@@ -1,62 +1,102 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import RepoCard from "../components/RepoCard.astro";
-import { categoryCounts, featuredRepos, latest } from "../lib/data.ts";
+import { categoryCounts, featuredRepos, latest, pulseStats } from "../lib/data.ts";
 import { categoryPath, pathTo } from "../lib/paths.ts";
 import { nextCrawlLabel, relativeTime } from "../lib/format.ts";
-import { CATEGORY_MARK } from "../lib/ui.ts";
 
 const counts = categoryCounts();
 const featured = featuredRepos();
+const pulse = pulseStats();
 const q = Astro.url.searchParams.get("q") ?? "";
 const examples = ["pytorch vision", "rust cli", "android", "good first issue"];
 const nextCrawl = nextCrawlLabel();
 ---
 
 <BaseLayout title="Contribute Pulse" searchValue={q} home>
-  <section class="hero-in max-w-xl">
-    <p class="eyebrow">
-      <span class="live-dot" aria-hidden="true"></span>
-      Updated <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>
-      · <span data-next-crawl>{nextCrawl}</span>
-      · {latest.repoCount} repos
-    </p>
-    <h1 class="mt-4 font-display text-[2.25rem] leading-[1.12] sm:text-[3.5rem]">
-      Find a repo that is alive — and will notice your pull request.
-    </h1>
-    <p class="mt-4 max-w-[34em] text-[15px] leading-relaxed text-moss sm:text-lg">
-      Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
-      maintainer activity and room for contributors.
-    </p>
-    <form class="hero-search mt-7" action={pathTo("")} method="get" role="search">
-      <div class="search-wrap">
-        <label class="sr-only" for="home-search">Search the board</label>
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
-          <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-        </svg>
-        <input
-          id="home-search"
-          data-home-search
-          type="search"
-          name="q"
-          value={q}
-          placeholder="pytorch vision, rust cli, android"
-          class="field field-lg"
-          autocomplete="off"
-        />
+  <section class="hero-in hero-split">
+    <div>
+      <p class="eyebrow">
+        <span class="live-dot" aria-hidden="true"></span>
+        Updated <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>
+        · <span data-next-crawl>{nextCrawl}</span>
+      </p>
+      <h1 class="mt-4 max-w-[18ch] font-display text-[2.25rem] leading-[1.12] sm:text-[3.5rem]">
+        Find a repo that is alive — and will notice your pull request.
+      </h1>
+      <p class="mt-4 max-w-[34em] text-[15px] leading-relaxed text-moss sm:text-lg">
+        Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
+        maintainer activity and room for contributors.
+      </p>
+      <form class="hero-search mt-7" action={pathTo("")} method="get" role="search">
+        <div class="search-wrap">
+          <label class="sr-only" for="home-search">Search the board</label>
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
+            <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+          </svg>
+          <input
+            id="home-search"
+            data-home-search
+            type="search"
+            name="q"
+            value={q}
+            placeholder="pytorch vision, rust cli, android"
+            class="field field-lg"
+            autocomplete="off"
+          />
+        </div>
+        <button type="submit" class="btn-primary">Search the board</button>
+      </form>
+      <div class="mt-3 flex flex-wrap gap-1.5">
+        {
+          examples.map((ex) => (
+            <button type="button" class="example-chip" data-search-chip={ex}>
+              {ex}
+            </button>
+          ))
+        }
       </div>
-      <button type="submit" class="btn-primary">Search the board</button>
-    </form>
-    <div class="mt-3 flex flex-wrap gap-1.5">
-      {
-        examples.map((ex) => (
-          <button type="button" class="example-chip" data-search-chip={ex}>
-            {ex}
-          </button>
-        ))
-      }
     </div>
+
+    <aside class="pulse-card" aria-label="Pulse status">
+      <p class="eyebrow">Pulse</p>
+      <p class="mt-2 font-mono text-4xl tabular-nums tracking-tight text-ink sm:text-5xl">{pulse.repoCount}</p>
+      <p class="mt-1 text-sm text-moss">repos on the board</p>
+
+      <div class="mt-5">
+        <div class="pulse-stat">
+          <span class="text-moss">Updated</span>
+          <time class="font-mono tabular-nums text-ink" datetime={latest.generatedAt} data-relative>
+            {relativeTime(latest.generatedAt)}
+          </time>
+        </div>
+        <div class="pulse-stat">
+          <span class="text-moss">Next crawl</span>
+          <span class="font-mono tabular-nums text-ink" data-next-crawl>{nextCrawl}</span>
+        </div>
+        <div class="pulse-stat">
+          <span class="text-moss">Starter issues</span>
+          <span class="font-mono tabular-nums text-ink">{pulse.issueCount}</span>
+        </div>
+        <div class="pulse-stat">
+          <span class="text-moss">Languages</span>
+          <span class="font-mono tabular-nums text-ink">{pulse.languages}</span>
+        </div>
+      </div>
+
+      <p class="eyebrow mt-6">Why these repos?</p>
+      <ul class="mt-3 space-y-2 text-sm leading-relaxed text-moss">
+        <li>Activity beats stars.</li>
+        <li>Maintainer responsiveness matters.</li>
+        <li>Starter issues matter.</li>
+      </ul>
+      <p class="mt-4">
+        <a class="text-sm text-ink/80 underline decoration-line underline-offset-4 hover:text-ink" href={pathTo("about/")}>
+          See how Pulse scores
+        </a>
+      </p>
+    </aside>
   </section>
 
   <section data-search-results hidden class="mt-14">
@@ -76,44 +116,37 @@ const nextCrawl = nextCrawlLabel();
       </label>
     </div>
     <div data-search-cats class="mt-3 flex flex-wrap gap-1.5"></div>
-    <div data-search-grid class="mt-6 grid gap-3 sm:grid-cols-2"></div>
+    <div data-search-grid class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
   </section>
 
   <div data-home-default>
-    <div class="home-board mt-14 sm:mt-16">
-      <aside class="home-cats">
-        <p class="eyebrow">Browse</p>
-        <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
-        <ul class="cat-rail mt-4">
-          {
-            counts.map((cat) => (
-              <li>
-                <a href={categoryPath(cat.slug)} class="cat-tile">
-                  <span class="cat-mark">{CATEGORY_MARK[cat.slug]}</span>
-                  <span class="min-w-0 flex-1 truncate text-sm font-medium text-ink">{cat.name}</span>
-                  <span class="font-mono text-xs tabular-nums text-moss">{cat.count}</span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </aside>
+    <section class="mt-14 sm:mt-16">
+      <p class="eyebrow">Browse</p>
+      <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
+      <nav class="cat-strip mt-4" aria-label="Categories">
+        {
+          counts.map((cat) => (
+            <a class="cat-chip" href={categoryPath(cat.slug)}>
+              <span>{cat.name}</span>
+              <span class="n">{cat.count}</span>
+            </a>
+          ))
+        }
+      </nav>
+    </section>
 
-      <section class="home-featured">
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p class="eyebrow">Board</p>
-            <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
-          </div>
-          <p class="text-sm text-moss">
-            Top 8 · <span data-next-crawl>{nextCrawl}</span>
-          </p>
+    <section class="mt-12 sm:mt-14">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="eyebrow">Board</p>
+          <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
         </div>
-        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          {featured.map((repo) => <RepoCard repo={repo} />)}
-        </div>
-      </section>
-    </div>
+        <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
+      </div>
+      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {featured.map((repo) => <RepoCard repo={repo} />)}
+      </div>
+    </section>
 
     <section class="mt-16 sm:mt-20">
       <p class="eyebrow">Method</p>

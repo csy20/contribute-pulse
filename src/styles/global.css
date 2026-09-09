@@ -146,51 +146,84 @@ body {
   transition: color 120ms ease;
 }
 
-/* Home split: categories left, featured right. Revert by restoring index.astro stack. */
-.home-board {
+.shell {
+  width: min(1280px, calc(100% - 2.5rem));
+  margin-inline: auto;
+}
+
+@media (min-width: 640px) {
+  .shell {
+    width: min(1280px, calc(100% - 4rem));
+  }
+}
+
+.hero-split {
   display: grid;
-  gap: 2.5rem;
-}
-
-.home-featured {
-  order: -1;
-}
-
-.cat-rail {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
-.cat-rail .cat-tile {
-  min-height: 2.75rem;
-  padding: 0.55rem 0.65rem;
-  gap: 0.5rem;
-}
-
-.cat-rail .cat-mark {
-  width: 1.55rem;
+  gap: 2rem;
+  align-items: start;
 }
 
 @media (min-width: 1024px) {
-  .home-board {
-    grid-template-columns: 17rem minmax(0, 1fr);
-    gap: 2rem 2.25rem;
-    align-items: start;
+  .hero-split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.85fr);
+    gap: 4.5rem;
   }
+}
 
-  .home-featured {
-    order: 0;
-  }
+.pulse-card {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 1.25rem 1.35rem 1.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
 
-  .home-cats {
-    position: sticky;
-    top: 72px;
-  }
+.pulse-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 0.875rem;
+}
 
-  .cat-rail {
-    grid-template-columns: 1fr;
-  }
+.pulse-stat:last-of-type {
+  border-bottom: 0;
+}
+
+.cat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0 0.8rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-panel);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.cat-chip:hover {
+  border-color: var(--color-line-strong);
+  background: var(--color-panel-2);
+}
+
+.cat-chip .n {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-moss);
 }
 
 .pill {
