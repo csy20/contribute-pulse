@@ -16,21 +16,21 @@ const nextCrawl = nextCrawlLabel();
 <BaseLayout title="Contribute Pulse" searchValue={q} home>
   <section class="hero-in hero-split">
     <div>
-      <p class="eyebrow">
+      <h1 class="max-w-[18ch] font-display text-[2.25rem] leading-[1.12] sm:text-[3.5rem]">
+        Find a repo that is alive — and will notice your pull request.
+      </h1>
+      <p class="eyebrow mt-4">
         <span class="live-dot" aria-hidden="true"></span>
         Updated <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>
         · <span data-next-crawl>{nextCrawl}</span>
       </p>
-      <h1 class="mt-4 max-w-[18ch] font-display text-[2.25rem] leading-[1.12] sm:text-[3.5rem]">
-        Find a repo that is alive — and will notice your pull request.
-      </h1>
-      <p class="mt-4 max-w-[34em] text-[15px] leading-relaxed text-moss sm:text-lg">
-        Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
-        maintainer activity and room for contributors.
-      </p>
     </div>
 
     <div class="hero-rail">
+      <p class="mb-4 max-w-[34em] text-[15px] leading-relaxed text-moss sm:text-lg">
+        Browse AI/ML, web, systems, and language ecosystems. We only surface projects with recent
+        maintainer activity and room for contributors.
+      </p>
       <form class="hero-search" action={pathTo("")} method="get" role="search">
         <div class="search-wrap">
           <label class="sr-only" for="home-search">Search the board</label>
