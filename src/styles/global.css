@@ -192,6 +192,39 @@ body {
   border-bottom: 0;
 }
 
+.home-board {
+  display: grid;
+  gap: 2.5rem;
+}
+
+.cat-rail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.cat-rail .cat-chip {
+  width: 100%;
+  justify-content: space-between;
+}
+
+@media (min-width: 1024px) {
+  .home-board {
+    grid-template-columns: 17rem minmax(0, 1fr);
+    gap: 2rem 2.25rem;
+    align-items: start;
+  }
+
+  .home-cats {
+    position: sticky;
+    top: 72px;
+  }
+
+  .cat-rail {
+    grid-template-columns: 1fr;
+  }
+}
+
 .cat-strip {
   display: flex;
   flex-wrap: wrap;

@@ -120,33 +120,35 @@ const nextCrawl = nextCrawlLabel();
   </section>
 
   <div data-home-default>
-    <section class="mt-14 sm:mt-16">
-      <p class="eyebrow">Browse</p>
-      <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
-      <nav class="cat-strip mt-4" aria-label="Categories">
-        {
-          counts.map((cat) => (
-            <a class="cat-chip" href={categoryPath(cat.slug)}>
-              <span>{cat.name}</span>
-              <span class="n">{cat.count}</span>
-            </a>
-          ))
-        }
-      </nav>
-    </section>
+    <div class="home-board mt-14 sm:mt-16">
+      <aside class="home-cats">
+        <p class="eyebrow">Browse</p>
+        <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Categories</h2>
+        <nav class="cat-rail mt-4" aria-label="Categories">
+          {
+            counts.map((cat) => (
+              <a class="cat-chip" href={categoryPath(cat.slug)}>
+                <span class="min-w-0 truncate">{cat.name}</span>
+                <span class="n">{cat.count}</span>
+              </a>
+            ))
+          }
+        </nav>
+      </aside>
 
-    <section class="mt-12 sm:mt-14">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="eyebrow">Board</p>
-          <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
+      <section class="home-featured">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p class="eyebrow">Board</p>
+            <h2 class="mt-2 font-display text-[1.65rem] sm:text-[1.75rem]">Highest contribute score</h2>
+          </div>
+          <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
         </div>
-        <p class="text-sm text-moss">Top 8 · mid-size, recently pushed</p>
-      </div>
-      <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {featured.map((repo) => <RepoCard repo={repo} />)}
-      </div>
-    </section>
+        <div class="mt-5 grid gap-3 sm:grid-cols-2">
+          {featured.map((repo) => <RepoCard repo={repo} />)}
+        </div>
+      </section>
+    </div>
 
     <section class="mt-16 sm:mt-20">
       <p class="eyebrow">Method</p>
