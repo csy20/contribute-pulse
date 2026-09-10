@@ -2,6 +2,10 @@
 
 Find a repo that is alive — and will notice your pull request.
 
+[![Contribute Pulse](public/og.png)](https://csy20.me/contribute-pulse/)
+
+**Live:** [csy20.me/contribute-pulse](https://csy20.me/contribute-pulse/)
+
 Contribute Pulse is a public, static board of open-source GitHub repositories that are worth contributing to: licensed, recently pushed, mid-sized, and labeled so a new contributor has a place to start. Repos are grouped by human categories and ranked by a contribute score, not raw stars.
 
 This is not a dump of every `good-first-issue`. It is a curated discovery board.

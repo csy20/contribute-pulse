@@ -20,7 +20,9 @@ const {
   home = false,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://csy20.github.io").toString();
+const origin = Astro.site ?? new URL("https://csy20.me");
+const canonical = new URL(Astro.url.pathname, origin).toString();
+const ogImage = new URL(pathTo("og.png"), origin).toString();
 ---
 
 <!doctype html>
@@ -40,6 +42,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? "https://csy20.githu
       rel="stylesheet"
     />
     <title>{title}</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Contribute Pulse" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="Contribute Pulse — find a repo that is alive and will notice your pull request." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
   </head>
   <body class="font-sans antialiased" data-page={home ? "home" : "inner"}>
     <a class="skip-link" href="#main">Skip to content</a>

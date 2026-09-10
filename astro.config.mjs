@@ -26,12 +26,21 @@ function copyBoardData() {
 const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
 const owner = process.env.GITHUB_REPOSITORY_OWNER;
 const isUserSite = repoName && owner && repoName === `${owner}.github.io`;
+const onVercel = Boolean(process.env.VERCEL);
 const base =
   process.env.BASE_PATH ||
-  (process.env.GITHUB_ACTIONS && repoName && !isUserSite ? `/${repoName}/` : "/");
+  (process.env.GITHUB_ACTIONS && !onVercel && repoName && !isUserSite ? `/${repoName}/` : "/");
+
+const site =
+  process.env.SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://csy20.me");
 
 export default defineConfig({
-  site: process.env.SITE_URL || "https://csy20.github.io",
+  site,
   base,
   output: "static",
   trailingSlash: "always",
