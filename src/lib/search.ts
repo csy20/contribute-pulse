@@ -24,22 +24,29 @@ export const DEFAULT_FILTERS: BoardFilters = {
   sort: "score",
 };
 
+function searchHaystack(repo: Repo): string {
+  return [
+    repo.name,
+    repo.owner,
+    repo.fullName,
+    repo.description,
+    repo.language ?? "",
+    ...repo.topics,
+    ...repo.categories,
+    ...repo.categories.map((c) => CATEGORY_NAME[c as CategorySlug] ?? c),
+    ...repo.issues.flatMap((i) => [i.title, ...i.labels]),
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
 export function searchRepos(repos: Repo[], query: string): Repo[] {
-  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
-  if (terms.length === 0) return repos;
+  const raw = query.toLowerCase().trim();
+  if (!raw) return repos;
+  const terms = raw.split(/\s+/).filter(Boolean);
   return repos.filter((repo) => {
-    const hay = [
-      repo.name,
-      repo.owner,
-      repo.fullName,
-      repo.description,
-      repo.language ?? "",
-      ...repo.topics,
-      ...repo.categories,
-      ...repo.categories.map((c) => CATEGORY_NAME[c as CategorySlug] ?? c),
-    ]
-      .join(" ")
-      .toLowerCase();
+    const hay = searchHaystack(repo);
+    if (hay.includes(raw)) return true;
     return terms.every((term) => hay.includes(term));
   });
 }

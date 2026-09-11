@@ -2,7 +2,7 @@ import { graphql } from "@octokit/graphql";
 
 const SEARCH_INTERVAL_MS = 2_200; // stay under ~30 search req/min
 const GRAPHQL_INTERVAL_MS = 350;
-const MAX_BACKOFF_MS = 40_000;
+export const MAX_BACKOFF_MS = 40_000;
 
 export interface SearchRepoHit {
   id: number;
@@ -127,10 +127,26 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function isRateLimit(status: number, body: string): boolean {
+function isRateLimit(status: number, body: string, remaining: string | null): boolean {
   if (status === 429) return true;
-  if (status === 403) return true;
-  return /rate limit|secondary rate/i.test(body);
+  if (remaining === "0") return true;
+  return status === 403 && /rate limit|secondary rate/i.test(body);
+}
+
+/** Cap waits so a secondary-limit 403 cannot sleep until the hourly reset. */
+export function rateLimitWaitMs(input: {
+  attempt: number;
+  retryAfterSec: number;
+  remaining: string | null;
+  resetEpochSec: number;
+  now?: number;
+}): number {
+  const now = input.now ?? Date.now();
+  if (input.retryAfterSec > 0) return Math.min(input.retryAfterSec * 1000, MAX_BACKOFF_MS);
+  if (input.remaining === "0" && input.resetEpochSec > 0) {
+    return Math.min(Math.max(input.resetEpochSec * 1000 - now, 1500), MAX_BACKOFF_MS);
+  }
+  return Math.min(1000 * 2 ** input.attempt, MAX_BACKOFF_MS);
 }
 
 export class GithubClient {
@@ -178,19 +194,18 @@ export class GithubClient {
     const res = await fetch(url, { headers: this.headers() });
     this.apiCalls += 1;
     const remaining = res.headers.get("x-ratelimit-remaining");
-    if (remaining === "0" || res.status === 403 || res.status === 429) {
+    if (res.status === 403 || res.status === 429) {
       const body = await res.text().catch(() => "");
-      if (isRateLimit(res.status, body) || remaining === "0") {
+      if (isRateLimit(res.status, body, remaining)) {
         if (attempt >= 6) {
           throw new Error(`GitHub rate limit after ${attempt} retries: ${res.status} ${body.slice(0, 200)}`);
         }
-        const retryAfter = Number(res.headers.get("retry-after") || 0);
-        const reset = Number(res.headers.get("x-ratelimit-reset") || 0);
-        const waitMs = retryAfter
-          ? retryAfter * 1000
-          : reset
-            ? Math.max(reset * 1000 - Date.now(), 1500)
-            : Math.min(1000 * 2 ** attempt, MAX_BACKOFF_MS);
+        const waitMs = rateLimitWaitMs({
+          attempt,
+          retryAfterSec: Number(res.headers.get("retry-after") || 0),
+          remaining,
+          resetEpochSec: Number(res.headers.get("x-ratelimit-reset") || 0),
+        });
         console.warn(`[pulse] backoff ${waitMs}ms status=${res.status} attempt=${attempt + 1}`);
         await sleep(waitMs + 250);
         return this.fetchWithBackoff(url, attempt + 1);

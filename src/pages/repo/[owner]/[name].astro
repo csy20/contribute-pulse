@@ -3,7 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import ScoreBars from "../../../components/ScoreBars.astro";
 import { CATEGORY_NAME } from "../../../../scripts/types.ts";
 import { latest } from "../../../lib/data.ts";
-import { formatScore, formatStars, relativeTime } from "../../../lib/format.ts";
+import { formatScore, formatStars, relativeTime, safeHttpUrl } from "../../../lib/format.ts";
 import { categoryPath, pathTo } from "../../../lib/paths.ts";
 import { avatarUrl, languageColor } from "../../../lib/ui.ts";
 
@@ -16,6 +16,7 @@ export function getStaticPaths() {
 
 const { repo } = Astro.props;
 const langColor = languageColor(repo.language);
+const homepage = safeHttpUrl(repo.homepage);
 ---
 
 <BaseLayout title={`${repo.fullName} · Contribute Pulse`} description={repo.description}>
@@ -89,8 +90,8 @@ const langColor = languageColor(repo.language);
       <div class="mt-6 flex flex-wrap gap-2">
         <a class="btn-primary w-full sm:w-auto" href={repo.url} rel="noopener noreferrer">Open on GitHub</a>
         {
-          repo.homepage && (
-            <a class="btn-ghost w-full sm:w-auto" href={repo.homepage} rel="noopener noreferrer">
+          homepage && (
+            <a class="btn-ghost w-full sm:w-auto" href={homepage} rel="noopener noreferrer">
               Homepage
             </a>
           )

@@ -18,12 +18,10 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,7 +37,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         run: npm run update-data
 
+      - name: Build
+        run: npm run build
+        env:
+          SITE_URL: https://csy20.me
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
       - name: Commit data if changed
+        continue-on-error: true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -50,16 +59,6 @@ jobs:
           fi
           git commit -m "chore: update repository board data"
           git push
-
-      - name: Build
-        run: npm run build
-        env:
-          SITE_URL: https://csy20.me
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
 
   deploy:
     needs: update

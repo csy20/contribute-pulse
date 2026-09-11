@@ -1,11 +1,11 @@
 import type { LatestData } from "../../scripts/types.ts";
-import { nextCrawlLabel } from "./format.ts";
+import { isStale, nextCrawlLabel } from "./format.ts";
 import { dataUrl } from "./render-card.ts";
 
 let cache: LatestData | null = null;
-let inflight: Promise<LatestData> | null = null;
+let inflight: Promise<LatestData | null> | null = null;
 
-export async function loadLatest(fallback: LatestData): Promise<LatestData> {
+export async function loadLatest(): Promise<LatestData | null> {
   if (cache) return cache;
   if (!inflight) {
     inflight = fetch(dataUrl())
@@ -17,8 +17,8 @@ export async function loadLatest(fallback: LatestData): Promise<LatestData> {
         return json;
       })
       .catch(() => {
-        cache = fallback;
-        return fallback;
+        inflight = null;
+        return null;
       });
   }
   return inflight;
@@ -26,6 +26,16 @@ export async function loadLatest(fallback: LatestData): Promise<LatestData> {
 
 export function hydrateRelativeTimes(root: ParentNode = document): void {
   const now = Date.now();
+  root.querySelectorAll<HTMLElement>("[data-stale-banner]").forEach((el) => {
+    const generatedAt = el.getAttribute("data-generated-at") ?? "";
+    const sample = el.getAttribute("data-source") === "sample";
+    const stale = isStale(generatedAt, now);
+    el.hidden = !sample && !stale;
+    const sampleCopy = el.querySelector<HTMLElement>("[data-stale-sample]");
+    const oldCopy = el.querySelector<HTMLElement>("[data-stale-old]");
+    if (sampleCopy) sampleCopy.hidden = !sample;
+    if (oldCopy) oldCopy.hidden = !stale;
+  });
   root.querySelectorAll<HTMLElement>("[data-next-crawl]").forEach((el) => {
     el.textContent = nextCrawlLabel(now);
   });

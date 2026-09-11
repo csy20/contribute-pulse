@@ -1,5 +1,5 @@
 ---
-import { isStale } from "../lib/data.ts";
+import { isStale } from "../lib/format.ts";
 
 interface Props {
   generatedAt: string;
@@ -11,18 +11,17 @@ const stale = isStale(generatedAt);
 const sample = source === "sample";
 ---
 
-{
-  (stale || sample) && (
-    <div class="stale-banner py-2 text-sm text-moss">
-      <div class="shell">
-        {sample && <span>Bundled sample data is showing until the next GitHub crawl.</span>}
-        {stale && (
-          <span>
-            {sample ? " " : ""}
-            Board data is older than 36 hours — treat activity signals as stale.
-          </span>
-        )}
-      </div>
-    </div>
-  )
-}
+<div
+  class="stale-banner py-2 text-sm text-moss"
+  data-stale-banner
+  data-generated-at={generatedAt}
+  data-source={source}
+  hidden={!sample && !stale}
+>
+  <div class="shell">
+    <span data-stale-sample hidden={!sample}>Bundled sample data is showing until the next GitHub crawl.</span>
+    <span data-stale-old hidden={!stale}>
+      {sample ? " " : ""}Board data is older than 36 hours — treat activity signals as stale.
+    </span>
+  </div>
+</div>

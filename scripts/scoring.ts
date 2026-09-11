@@ -316,6 +316,45 @@ export function passesHardFilters(input: HardFilterInput, now = new Date()): boo
   return true;
 }
 
+/** Final board snapshot checks. Drop a row instead of failing the whole crawl. */
+export function isBoardEligible(
+  repo: {
+    fullName?: string;
+    url?: string;
+    description?: string | null;
+    pushedAt?: string | null;
+    issues?: unknown[] | null;
+  },
+  now = new Date(),
+): boolean {
+  if (!repo.fullName || !repo.url) return false;
+  if (!repo.description?.trim()) return false;
+  if (!repo.pushedAt) return false;
+  if (daysBetween(repo.pushedAt, now) > BOARD_LIMITS.maxPushAgeDays) return false;
+  if (!repo.issues?.length) return false;
+  return true;
+}
+
+export const MIN_DEFAULT_BOARD = 80;
+
+export function defaultBoardCount(repos: { famousHard: boolean; stars: number }[]): number {
+  return repos.filter((r) => !r.famousHard && r.stars <= 80_000).length;
+}
+
+/** Refuse to publish a collapsed snapshot over a healthy previous board. */
+export function boardTooThin(
+  nextDefaultCount: number,
+  prevDefaultCount: number | null,
+  minDefault = MIN_DEFAULT_BOARD,
+): string | null {
+  if (nextDefaultCount === 0) return "default board would be empty";
+  if (nextDefaultCount < minDefault) return `default board too small (${nextDefaultCount} < ${minDefault})`;
+  if (prevDefaultCount != null && prevDefaultCount >= minDefault && nextDefaultCount < prevDefaultCount * 0.5) {
+    return `default board collapsed ${prevDefaultCount} -> ${nextDefaultCount}`;
+  }
+  return null;
+}
+
 /** Keep at most 400 repos, 80 per category. Higher scores win. */
 export function capBoard(repos: Repo[]): Repo[] {
   const sorted = [...repos].sort(

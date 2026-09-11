@@ -4,8 +4,11 @@ import { fileURLToPath } from "node:url";
 import { CATEGORY_DEFS, classifyRepo, searchShardsForCategory } from "./category-map.ts";
 import { GithubClient, type GraphqlIssue, type GraphqlRepo, type SearchRepoHit } from "./github.ts";
 import {
+  boardTooThin,
   capBoard,
   daysBetween,
+  defaultBoardCount,
+  isBoardEligible,
   isContributorLabel,
   isGoodFirstLabel,
   isHelpWantedLabel,
@@ -211,20 +214,9 @@ function buildSearchQueries(now: Date): { category: CategorySlug; query: string;
     buckets.set(cat.slug, list);
   }
 
-  const famousShards = [
-    "topic:machine-learning",
-    "topic:react",
-    "topic:kubernetes",
-    "language:Rust topic:cli",
-    "topic:android",
-  ];
-  const out: { category: CategorySlug; query: string; famous: boolean }[] = famousShards.map((shard) => ({
-    category: "other" as CategorySlug,
-    query: `${shard} ${famousCommon} good-first-issues:>0`,
-    famous: true,
-  }));
+  const out: { category: CategorySlug; query: string; famous: boolean }[] = [];
 
-  // Round-robin shards so later categories are not starved by the candidate cap.
+  // Mid-size shards first so a time-budget cut still fills the default board.
   const maxLen = Math.max(0, ...[...buckets.values()].map((list) => list.length));
   for (let i = 0; i < maxLen; i++) {
     for (const cat of CATEGORY_DEFS) {
@@ -233,8 +225,35 @@ function buildSearchQueries(now: Date): { category: CategorySlug; query: string;
     }
   }
 
+  const famousShards = [
+    "topic:machine-learning",
+    "topic:react",
+    "topic:kubernetes",
+    "language:Rust topic:cli",
+    "topic:android",
+  ];
+  for (const shard of famousShards) {
+    out.push({
+      category: "other",
+      query: `${shard} ${famousCommon} good-first-issues:>0`,
+      famous: true,
+    });
+  }
+
   void now;
   return out;
+}
+
+function loadPreviousBoard(): LatestData | null {
+  const path = resolve(DATA_DIR, "latest.json");
+  if (!existsSync(path)) return null;
+  try {
+    const json = JSON.parse(readFileSync(path, "utf8")) as LatestData;
+    if (!Array.isArray(json.repos)) return null;
+    return json;
+  } catch {
+    return null;
+  }
 }
 
 function writeOutputs(data: LatestData) {
@@ -298,22 +317,22 @@ function writeOutputs(data: LatestData) {
   writeFileSync(resolve(DATA_DIR, "meta.json"), JSON.stringify(meta, null, 2) + "\n");
 }
 
-function validateBoard(data: LatestData, now: Date) {
+function sanitizeBoard(data: LatestData, now: Date): LatestData {
   if (!Array.isArray(data.repos)) throw new Error("latest.json missing repos[]");
-  if (data.repos.length > BOARD_LIMITS.maxRepos) {
-    throw new Error(`repo cap exceeded: ${data.repos.length}`);
+  const repos = data.repos
+    .filter((repo) => isBoardEligible(repo, now))
+    .map((repo) => ({
+      ...repo,
+      issues: repo.issues.slice(0, BOARD_LIMITS.maxIssuesPerRepo),
+    }));
+  const dropped = data.repos.length - repos.length;
+  if (dropped) console.warn(`[pulse] dropped ${dropped} repos that failed validation`);
+  if (repos.length === 0) throw new Error("zero repos passed validation");
+  if (repos.length > BOARD_LIMITS.maxRepos) {
+    throw new Error(`repo cap exceeded: ${repos.length}`);
   }
-  for (const repo of data.repos) {
-    if (!repo.fullName || !repo.url) throw new Error("repo missing identity");
-    if (!repo.description?.trim()) throw new Error(`${repo.fullName} empty description`);
-    if (daysBetween(repo.pushedAt, now) > BOARD_LIMITS.maxPushAgeDays) {
-      throw new Error(`${repo.fullName} pushed more than 45 days ago`);
-    }
-    if (!repo.issues?.length) throw new Error(`${repo.fullName} has no starter issues`);
-    if (repo.issues.length > BOARD_LIMITS.maxIssuesPerRepo) {
-      throw new Error(`${repo.fullName} too many issues stored`);
-    }
-  }
+  const issueCount = repos.reduce((n, r) => n + r.issues.length, 0);
+  return { ...data, repos, repoCount: repos.length, issueCount };
 }
 
 async function main() {
@@ -335,9 +354,11 @@ async function main() {
   const candidates = new Map<string, SearchRepoHit>();
   const perSearchCategory = new Map<CategorySlug, number>();
   let famousCount = 0;
+  let budgetHit = false;
 
   for (const q of queries) {
     if (Date.now() > deadline) {
+      budgetHit = true;
       console.warn("[pulse] time budget hit during search; continuing with current candidates");
       break;
     }
@@ -347,19 +368,16 @@ async function main() {
       const hits = await client.searchRepositories(q.query, q.famous ? 10 : SEARCH_PER_PAGE);
       for (const hit of hits) {
         if (hit.isFork || hit.isArchived) continue;
+        const key = uniqueKey(hit.owner, hit.name);
+        if (candidates.has(key)) continue;
         if (q.famous) {
           if (famousCount >= MAX_FAMOUS) continue;
-          famousCount += 1;
         } else if ((perSearchCategory.get(q.category) ?? 0) >= MAX_PER_SEARCH_CATEGORY) {
           break;
         }
-        const key = uniqueKey(hit.owner, hit.name);
-        if (!candidates.has(key)) {
-          candidates.set(key, hit);
-          if (!q.famous) {
-            perSearchCategory.set(q.category, (perSearchCategory.get(q.category) ?? 0) + 1);
-          }
-        }
+        candidates.set(key, hit);
+        if (q.famous) famousCount += 1;
+        else perSearchCategory.set(q.category, (perSearchCategory.get(q.category) ?? 0) + 1);
       }
       console.log(
         `[pulse] search ok category=${q.category} famous=${q.famous} hits=${hits.length} unique=${candidates.size} calls=${client.apiCalls}`,
@@ -375,6 +393,7 @@ async function main() {
   const scored: Repo[] = [];
   for (let i = 0; i < list.length; i += BATCH_SIZE) {
     if (Date.now() > deadline) {
+      budgetHit = true;
       console.warn("[pulse] time budget hit during graphql; scoring what we have");
       break;
     }
@@ -411,31 +430,46 @@ async function main() {
   }
 
   const capped = capBoard(scored);
-  const issueCount = capped.reduce((n, r) => n + r.issues.length, 0);
-  const data: LatestData = {
-    generatedAt: new Date().toISOString(),
-    source: "github-actions",
-    repoCount: capped.length,
-    issueCount,
-    categories: CATEGORY_DEFS.map((c) => c.slug),
-    repos: capped,
-  };
-
-  try {
-    validateBoard(data, now);
-  } catch (err) {
-    console.error(`[pulse] validation failed, keeping previous JSON: ${err instanceof Error ? err.message : err}`);
-    process.exit(1);
-  }
-
   if (capped.length === 0) {
     console.error("[pulse] zero repos passed filters; keeping previous JSON");
     process.exit(1);
   }
 
-  const catsWithRepos = new Set(capped.flatMap((r) => r.categories));
+  let data: LatestData = {
+    generatedAt: new Date().toISOString(),
+    source: "github-actions",
+    repoCount: capped.length,
+    issueCount: capped.reduce((n, r) => n + r.issues.length, 0),
+    categories: CATEGORY_DEFS.map((c) => c.slug),
+    repos: capped,
+  };
+
+  try {
+    data = sanitizeBoard(data, now);
+  } catch (err) {
+    console.error(`[pulse] validation failed, keeping previous JSON: ${err instanceof Error ? err.message : err}`);
+    process.exit(1);
+  }
+
+  const previous = loadPreviousBoard();
+  const thin = boardTooThin(
+    defaultBoardCount(data.repos),
+    previous ? defaultBoardCount(previous.repos) : null,
+  );
+  if (thin) {
+    console.error(`[pulse] ${thin}; keeping previous JSON`);
+    process.exit(1);
+  }
+  if (budgetHit && previous && data.repos.length < previous.repos.length * 0.5) {
+    console.error(
+      `[pulse] time budget hit and board shrank ${previous.repos.length} -> ${data.repos.length}; keeping previous JSON`,
+    );
+    process.exit(1);
+  }
+
+  const catsWithRepos = new Set(data.repos.flatMap((r) => r.categories));
   console.log(
-    `[pulse] writing ${capped.length} repos across ${catsWithRepos.size} categories; issues=${issueCount}; apiCalls=${client.apiCalls}; elapsed=${Math.round((Date.now() - started) / 1000)}s`,
+    `[pulse] writing ${data.repos.length} repos across ${catsWithRepos.size} categories; issues=${data.issueCount}; apiCalls=${client.apiCalls}; elapsed=${Math.round((Date.now() - started) / 1000)}s`,
   );
 
   writeOutputs(data);

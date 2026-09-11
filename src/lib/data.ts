@@ -46,8 +46,4 @@ export function findRepo(owner: string, name: string, repos: Repo[] = latest.rep
   return repos.find((r) => r.fullName.toLowerCase() === key);
 }
 
-export function isStale(generatedAt: string, now = Date.now(), hours = 36): boolean {
-  const then = new Date(generatedAt).getTime();
-  if (Number.isNaN(then)) return true;
-  return now - then > hours * 3_600_000;
-}
+export { isStale } from "./format.ts";
