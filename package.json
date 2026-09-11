@@ -13,7 +13,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "update-data": "tsx scripts/update-data.ts",
-    "test": "tsx --test scripts/scoring.test.ts scripts/category-map.test.ts src/lib/format.test.ts"
+    "test": "tsx --test scripts/scoring.test.ts scripts/category-map.test.ts scripts/github.test.ts src/lib/format.test.ts src/lib/search.test.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.4.2",

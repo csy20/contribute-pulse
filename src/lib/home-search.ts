@@ -1,4 +1,4 @@
-import { CATEGORY_NAME, type CategorySlug, type LatestData } from "../../scripts/types.ts";
+import { CATEGORY_NAME, type CategorySlug } from "../../scripts/types.ts";
 import { loadLatest, hydrateRelativeTimes } from "./client-data.ts";
 import { categoryPath } from "./paths.ts";
 import { applyFilters, DEFAULT_FILTERS, type SortKey } from "./search.ts";
@@ -11,15 +11,6 @@ function debounce<T extends (...args: never[]) => void>(fn: T, ms: number): T {
     t = window.setTimeout(() => fn(...args), ms);
   }) as T;
 }
-
-const EMPTY: LatestData = {
-  generatedAt: "",
-  source: "sample",
-  repoCount: 0,
-  issueCount: 0,
-  categories: [],
-  repos: [],
-};
 
 export function initHomeSearch() {
   const input = document.querySelector<HTMLInputElement>("[data-home-search]");
@@ -54,9 +45,15 @@ export function initHomeSearch() {
       return;
     }
 
+    const data = await loadLatest();
+    if (!data) {
+      rest.hidden = false;
+      results.hidden = true;
+      return;
+    }
+
     rest.hidden = true;
     results.hidden = false;
-    const data = await loadLatest(EMPTY);
     const rows = applyFilters(data.repos, { ...DEFAULT_FILTERS, query: q, sort: currentSort() });
     if (heading) heading.textContent = `${rows.length} ${rows.length === 1 ? "match" : "matches"} for “${q}”`;
     if (catRow) {
@@ -106,5 +103,5 @@ export function initHomeSearch() {
   });
 
   if (initial) void run(initial);
-  else void loadLatest(EMPTY);
+  else void loadLatest();
 }

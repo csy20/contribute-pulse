@@ -335,6 +335,26 @@ export function isBoardEligible(
   return true;
 }
 
+export const MIN_DEFAULT_BOARD = 80;
+
+export function defaultBoardCount(repos: { famousHard: boolean; stars: number }[]): number {
+  return repos.filter((r) => !r.famousHard && r.stars <= 80_000).length;
+}
+
+/** Refuse to publish a collapsed snapshot over a healthy previous board. */
+export function boardTooThin(
+  nextDefaultCount: number,
+  prevDefaultCount: number | null,
+  minDefault = MIN_DEFAULT_BOARD,
+): string | null {
+  if (nextDefaultCount === 0) return "default board would be empty";
+  if (nextDefaultCount < minDefault) return `default board too small (${nextDefaultCount} < ${minDefault})`;
+  if (prevDefaultCount != null && prevDefaultCount >= minDefault && nextDefaultCount < prevDefaultCount * 0.5) {
+    return `default board collapsed ${prevDefaultCount} -> ${nextDefaultCount}`;
+  }
+  return null;
+}
+
 /** Keep at most 400 repos, 80 per category. Higher scores win. */
 export function capBoard(repos: Repo[]): Repo[] {
   const sorted = [...repos].sort(

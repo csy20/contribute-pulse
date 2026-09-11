@@ -3,9 +3,9 @@ import { isStale, nextCrawlLabel } from "./format.ts";
 import { dataUrl } from "./render-card.ts";
 
 let cache: LatestData | null = null;
-let inflight: Promise<LatestData> | null = null;
+let inflight: Promise<LatestData | null> | null = null;
 
-export async function loadLatest(fallback: LatestData): Promise<LatestData> {
+export async function loadLatest(): Promise<LatestData | null> {
   if (cache) return cache;
   if (!inflight) {
     inflight = fetch(dataUrl())
@@ -18,7 +18,7 @@ export async function loadLatest(fallback: LatestData): Promise<LatestData> {
       })
       .catch(() => {
         inflight = null;
-        return fallback;
+        return null;
       });
   }
   return inflight;

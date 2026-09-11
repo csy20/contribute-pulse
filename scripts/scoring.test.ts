@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  boardTooThin,
   capBoard,
   contributeScore,
   freshness,
@@ -225,6 +226,16 @@ describe("isBoardEligible", () => {
       ),
       false,
     );
+  });
+});
+
+describe("boardTooThin", () => {
+  it("rejects an empty or collapsed default board", () => {
+    assert.ok(boardTooThin(0, 400));
+    assert.ok(boardTooThin(20, 400));
+    assert.ok(boardTooThin(100, 400));
+    assert.equal(boardTooThin(250, 400), null);
+    assert.equal(boardTooThin(90, null), null);
   });
 });
 

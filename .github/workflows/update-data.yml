@@ -12,18 +12,16 @@ permissions:
   id-token: write
 
 concurrency:
-  group: update-data
+  group: pages
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,6 +37,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         run: npm run update-data
 
+      - name: Build
+        run: npm run build
+        env:
+          SITE_URL: https://csy20.me
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
       - name: Commit data if changed
         continue-on-error: true
         run: |
@@ -52,22 +60,9 @@ jobs:
           git commit -m "chore: update repository board data"
           git push
 
-      - name: Build
-        run: npm run build
-        env:
-          SITE_URL: https://csy20.me
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
   deploy:
     needs: update
     runs-on: ubuntu-latest
-    concurrency:
-      group: pages
-      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -31,15 +31,6 @@ function fillLanguages(select: HTMLSelectElement, repos: Repo[], current: string
   if (current && langs.includes(current)) select.value = current;
 }
 
-const EMPTY: LatestData = {
-  generatedAt: "",
-  source: "sample",
-  repoCount: 0,
-  issueCount: 0,
-  categories: [],
-  repos: [],
-};
-
 export function initBoard() {
   const root = document.querySelector<HTMLElement>("[data-board]");
   const form = document.querySelector<HTMLFormElement>("[data-filters]");
@@ -47,11 +38,13 @@ export function initBoard() {
   const count = document.querySelector<HTMLElement>("[data-count]");
   if (!root || !form || !grid) return;
   const category = root.dataset.category as CategorySlug;
+  let snapshot: LatestData | null = null;
 
   const categoryRepos = (data: LatestData) =>
     data.repos.filter((r) => r.categories.includes(category));
 
   const render = (data: LatestData) => {
+    snapshot = data;
     const filters = readFilters(form);
     const source = categoryRepos(data);
     const langSelect = form.querySelector<HTMLSelectElement>("[name=language]");
@@ -66,19 +59,27 @@ export function initBoard() {
     hydrateRelativeTimes(grid);
   };
 
+  const refresh = () => {
+    if (snapshot) {
+      render(snapshot);
+      return;
+    }
+    void loadLatest().then((data) => {
+      if (data) render(data);
+    });
+  };
+
   form.addEventListener("submit", (e) => e.preventDefault());
-  form.addEventListener("input", () => {
-    loadLatest(EMPTY).then(render);
-  });
-  form.addEventListener("change", () => {
-    loadLatest(EMPTY).then(render);
-  });
+  form.addEventListener("input", refresh);
+  form.addEventListener("change", refresh);
   grid.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
     if (!target?.closest("[data-clear-filters]")) return;
     form.reset();
-    loadLatest(EMPTY).then(render);
+    refresh();
   });
 
-  loadLatest(EMPTY).then(render);
+  void loadLatest().then((data) => {
+    if (data) render(data);
+  });
 }

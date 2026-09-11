@@ -4,8 +4,10 @@ import { fileURLToPath } from "node:url";
 import { CATEGORY_DEFS, classifyRepo, searchShardsForCategory } from "./category-map.ts";
 import { GithubClient, type GraphqlIssue, type GraphqlRepo, type SearchRepoHit } from "./github.ts";
 import {
+  boardTooThin,
   capBoard,
   daysBetween,
+  defaultBoardCount,
   isBoardEligible,
   isContributorLabel,
   isGoodFirstLabel,
@@ -212,20 +214,9 @@ function buildSearchQueries(now: Date): { category: CategorySlug; query: string;
     buckets.set(cat.slug, list);
   }
 
-  const famousShards = [
-    "topic:machine-learning",
-    "topic:react",
-    "topic:kubernetes",
-    "language:Rust topic:cli",
-    "topic:android",
-  ];
-  const out: { category: CategorySlug; query: string; famous: boolean }[] = famousShards.map((shard) => ({
-    category: "other" as CategorySlug,
-    query: `${shard} ${famousCommon} good-first-issues:>0`,
-    famous: true,
-  }));
+  const out: { category: CategorySlug; query: string; famous: boolean }[] = [];
 
-  // Round-robin shards so later categories are not starved by the candidate cap.
+  // Mid-size shards first so a time-budget cut still fills the default board.
   const maxLen = Math.max(0, ...[...buckets.values()].map((list) => list.length));
   for (let i = 0; i < maxLen; i++) {
     for (const cat of CATEGORY_DEFS) {
@@ -234,8 +225,35 @@ function buildSearchQueries(now: Date): { category: CategorySlug; query: string;
     }
   }
 
+  const famousShards = [
+    "topic:machine-learning",
+    "topic:react",
+    "topic:kubernetes",
+    "language:Rust topic:cli",
+    "topic:android",
+  ];
+  for (const shard of famousShards) {
+    out.push({
+      category: "other",
+      query: `${shard} ${famousCommon} good-first-issues:>0`,
+      famous: true,
+    });
+  }
+
   void now;
   return out;
+}
+
+function loadPreviousBoard(): LatestData | null {
+  const path = resolve(DATA_DIR, "latest.json");
+  if (!existsSync(path)) return null;
+  try {
+    const json = JSON.parse(readFileSync(path, "utf8")) as LatestData;
+    if (!Array.isArray(json.repos)) return null;
+    return json;
+  } catch {
+    return null;
+  }
 }
 
 function writeOutputs(data: LatestData) {
@@ -336,9 +354,11 @@ async function main() {
   const candidates = new Map<string, SearchRepoHit>();
   const perSearchCategory = new Map<CategorySlug, number>();
   let famousCount = 0;
+  let budgetHit = false;
 
   for (const q of queries) {
     if (Date.now() > deadline) {
+      budgetHit = true;
       console.warn("[pulse] time budget hit during search; continuing with current candidates");
       break;
     }
@@ -348,19 +368,16 @@ async function main() {
       const hits = await client.searchRepositories(q.query, q.famous ? 10 : SEARCH_PER_PAGE);
       for (const hit of hits) {
         if (hit.isFork || hit.isArchived) continue;
+        const key = uniqueKey(hit.owner, hit.name);
+        if (candidates.has(key)) continue;
         if (q.famous) {
           if (famousCount >= MAX_FAMOUS) continue;
-          famousCount += 1;
         } else if ((perSearchCategory.get(q.category) ?? 0) >= MAX_PER_SEARCH_CATEGORY) {
           break;
         }
-        const key = uniqueKey(hit.owner, hit.name);
-        if (!candidates.has(key)) {
-          candidates.set(key, hit);
-          if (!q.famous) {
-            perSearchCategory.set(q.category, (perSearchCategory.get(q.category) ?? 0) + 1);
-          }
-        }
+        candidates.set(key, hit);
+        if (q.famous) famousCount += 1;
+        else perSearchCategory.set(q.category, (perSearchCategory.get(q.category) ?? 0) + 1);
       }
       console.log(
         `[pulse] search ok category=${q.category} famous=${q.famous} hits=${hits.length} unique=${candidates.size} calls=${client.apiCalls}`,
@@ -376,6 +393,7 @@ async function main() {
   const scored: Repo[] = [];
   for (let i = 0; i < list.length; i += BATCH_SIZE) {
     if (Date.now() > deadline) {
+      budgetHit = true;
       console.warn("[pulse] time budget hit during graphql; scoring what we have");
       break;
     }
@@ -430,6 +448,22 @@ async function main() {
     data = sanitizeBoard(data, now);
   } catch (err) {
     console.error(`[pulse] validation failed, keeping previous JSON: ${err instanceof Error ? err.message : err}`);
+    process.exit(1);
+  }
+
+  const previous = loadPreviousBoard();
+  const thin = boardTooThin(
+    defaultBoardCount(data.repos),
+    previous ? defaultBoardCount(previous.repos) : null,
+  );
+  if (thin) {
+    console.error(`[pulse] ${thin}; keeping previous JSON`);
+    process.exit(1);
+  }
+  if (budgetHit && previous && data.repos.length < previous.repos.length * 0.5) {
+    console.error(
+      `[pulse] time budget hit and board shrank ${previous.repos.length} -> ${data.repos.length}; keeping previous JSON`,
+    );
     process.exit(1);
   }
 
