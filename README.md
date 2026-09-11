@@ -10,7 +10,7 @@ Contribute Pulse is a public, static board of open-source GitHub repositories th
 
 This is not a dump of every `good-first-issue`. It is a curated discovery board.
 
-**Live data is precomputed.** GitHub Actions crawls GitHub once a day and commits JSON. The website never calls the GitHub API from the browser.
+**Live data is precomputed.** GitHub Actions crawls GitHub twice a day and commits JSON, then deploys Pages from that same run. The website never calls the GitHub API from the browser.
 
 ## Local development
 
@@ -35,21 +35,22 @@ The first build works from the bundled sample JSON in `data/`. Run `npm run upda
 Two workflows:
 
 1. **Update data** (`.github/workflows/update-data.yml`)
-   - Cron: `0 2 * * *` (02:00 UTC) plus `workflow_dispatch`
-   - Runs `npm run update-data` with `secrets.GH_TOKEN`
+   - Cron: `0 2 * * *` and `0 14 * * *` (02:00 and 14:00 UTC) plus `workflow_dispatch`
+   - Runs `npm run update-data` with `secrets.GH_TOKEN` if set, otherwise the built-in `GITHUB_TOKEN`
    - If `data/*.json` changed, commits as `github-actions[bot]` and pushes
-   - If the API errors or zero repos pass filters, the job fails and the previous JSON stays
+   - Builds and deploys GitHub Pages in the **same run**, so a missing PAT still ships a fresh board
+   - If the API errors or zero repos pass filters, the job fails and the previous JSON / Pages deploy stay
 
 2. **Deploy** (`.github/workflows/deploy.yml`)
-   - Builds the Astro site on push to `main` / `master`
+   - Builds the Astro site on code pushes to `main` / `master` (ignores data-only commits)
    - Publishes `dist/` to GitHub Pages
    - Sets `base` to `/<repo>/` automatically (or `/` for `username.github.io` repos)
 
-A data-only commit retriggers the Pages build because the update workflow checks out and pushes with `GH_TOKEN` (a PAT), which is allowed to start other workflows.
+`GITHUB_TOKEN` pushes do not start other workflows. That is why the crawler deploys Pages itself instead of relying on the Deploy workflow.
 
-## Required secret
+## Optional secret
 
-Create a **fine-grained personal access token** and store it as the repository secret `GH_TOKEN`.
+The crawler runs without extra setup. For higher GitHub API rate limits (recommended once the board is busy), create a **fine-grained personal access token** and store it as the repository secret `GH_TOKEN`.
 
 Suggested permissions:
 

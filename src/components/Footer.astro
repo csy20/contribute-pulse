@@ -1,7 +1,7 @@
 ---
 import { pathTo } from "../lib/paths.ts";
 import { latest } from "../lib/data.ts";
-import { nextCrawlLabel, relativeTime } from "../lib/format.ts";
+import { CRAWL_SCHEDULE_HINT, nextCrawlLabel, relativeTime } from "../lib/format.ts";
 
 const nextCrawl = nextCrawlLabel();
 ---
@@ -20,7 +20,7 @@ const nextCrawl = nextCrawlLabel();
     <p>
       Data generated
       <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>.
-      <span class="block" data-next-crawl>{nextCrawl} · 02:00 UTC daily</span>
+      <span class="block" data-next-crawl>{nextCrawl} · {CRAWL_SCHEDULE_HINT}</span>
     </p>
     <p class="flex flex-wrap gap-x-5 gap-y-1 sm:justify-end">
       <a class="text-ink/80 hover:text-ink hover:underline" href={pathTo("about/")}>About</a>

@@ -3,6 +3,8 @@ name: Deploy
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - "data/**"
   workflow_dispatch:
 
 permissions:

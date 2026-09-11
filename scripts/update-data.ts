@@ -259,7 +259,7 @@ function writeOutputs(data: LatestData) {
 
   const meta: MetaFile = {
     generatedAt: data.generatedAt,
-    nextUpdateHint: "Daily at 02:00 UTC",
+    nextUpdateHint: "02:00 and 14:00 UTC",
     source: data.source,
     repoCount: data.repoCount,
     issueCount: data.issueCount,
