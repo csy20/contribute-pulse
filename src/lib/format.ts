@@ -56,6 +56,26 @@ export function nextCrawlLabel(now = Date.now()): string {
   return `Next crawl ${formatDurationUntil(nextCrawlDate(now), now)}`;
 }
 
+export const STALE_AFTER_HOURS = 36;
+
+export function isStale(generatedAt: string, now = Date.now(), hours = STALE_AFTER_HOURS): boolean {
+  const then = new Date(generatedAt).getTime();
+  if (Number.isNaN(then)) return true;
+  return now - then > hours * 3_600_000;
+}
+
+/** Allow only http(s) URLs for rendered homepage links. */
+export function safeHttpUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (ch) => {
     switch (ch) {

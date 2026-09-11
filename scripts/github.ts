@@ -127,10 +127,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function isRateLimit(status: number, body: string): boolean {
+function isRateLimit(status: number, body: string, remaining: string | null): boolean {
   if (status === 429) return true;
-  if (status === 403) return true;
-  return /rate limit|secondary rate/i.test(body);
+  if (remaining === "0") return true;
+  return status === 403 && /rate limit|secondary rate/i.test(body);
 }
 
 export class GithubClient {
@@ -178,9 +178,9 @@ export class GithubClient {
     const res = await fetch(url, { headers: this.headers() });
     this.apiCalls += 1;
     const remaining = res.headers.get("x-ratelimit-remaining");
-    if (remaining === "0" || res.status === 403 || res.status === 429) {
+    if (res.status === 403 || res.status === 429) {
       const body = await res.text().catch(() => "");
-      if (isRateLimit(res.status, body) || remaining === "0") {
+      if (isRateLimit(res.status, body, remaining)) {
         if (attempt >= 6) {
           throw new Error(`GitHub rate limit after ${attempt} retries: ${res.status} ${body.slice(0, 200)}`);
         }

@@ -4,6 +4,7 @@ import {
   capBoard,
   contributeScore,
   freshness,
+  isBoardEligible,
   isContributorLabel,
   passesHardFilters,
   scoreRepo,
@@ -177,6 +178,53 @@ describe("capBoard", () => {
     const capped = capBoard(repos);
     assert.ok(capped.length <= 80);
     assert.equal(capped[0].name, "r0");
+  });
+});
+
+describe("isBoardEligible", () => {
+  it("accepts a licensed recent repo with starter issues", () => {
+    assert.equal(
+      isBoardEligible(
+        {
+          fullName: "org/demo",
+          url: "https://github.com/org/demo",
+          description: "A library",
+          pushedAt: "2026-09-08T00:00:00Z",
+          issues: [issue()],
+        },
+        now,
+      ),
+      true,
+    );
+  });
+
+  it("rejects a repo with no issues or a stale push", () => {
+    assert.equal(
+      isBoardEligible(
+        {
+          fullName: "org/demo",
+          url: "https://github.com/org/demo",
+          description: "A library",
+          pushedAt: "2026-09-08T00:00:00Z",
+          issues: [],
+        },
+        now,
+      ),
+      false,
+    );
+    assert.equal(
+      isBoardEligible(
+        {
+          fullName: "org/demo",
+          url: "https://github.com/org/demo",
+          description: "A library",
+          pushedAt: "2026-01-01T00:00:00Z",
+          issues: [issue()],
+        },
+        now,
+      ),
+      false,
+    );
   });
 });
 

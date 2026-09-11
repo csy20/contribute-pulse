@@ -6,6 +6,7 @@ import { GithubClient, type GraphqlIssue, type GraphqlRepo, type SearchRepoHit }
 import {
   capBoard,
   daysBetween,
+  isBoardEligible,
   isContributorLabel,
   isGoodFirstLabel,
   isHelpWantedLabel,
@@ -298,22 +299,22 @@ function writeOutputs(data: LatestData) {
   writeFileSync(resolve(DATA_DIR, "meta.json"), JSON.stringify(meta, null, 2) + "\n");
 }
 
-function validateBoard(data: LatestData, now: Date) {
+function sanitizeBoard(data: LatestData, now: Date): LatestData {
   if (!Array.isArray(data.repos)) throw new Error("latest.json missing repos[]");
-  if (data.repos.length > BOARD_LIMITS.maxRepos) {
-    throw new Error(`repo cap exceeded: ${data.repos.length}`);
+  const repos = data.repos
+    .filter((repo) => isBoardEligible(repo, now))
+    .map((repo) => ({
+      ...repo,
+      issues: repo.issues.slice(0, BOARD_LIMITS.maxIssuesPerRepo),
+    }));
+  const dropped = data.repos.length - repos.length;
+  if (dropped) console.warn(`[pulse] dropped ${dropped} repos that failed validation`);
+  if (repos.length === 0) throw new Error("zero repos passed validation");
+  if (repos.length > BOARD_LIMITS.maxRepos) {
+    throw new Error(`repo cap exceeded: ${repos.length}`);
   }
-  for (const repo of data.repos) {
-    if (!repo.fullName || !repo.url) throw new Error("repo missing identity");
-    if (!repo.description?.trim()) throw new Error(`${repo.fullName} empty description`);
-    if (daysBetween(repo.pushedAt, now) > BOARD_LIMITS.maxPushAgeDays) {
-      throw new Error(`${repo.fullName} pushed more than 45 days ago`);
-    }
-    if (!repo.issues?.length) throw new Error(`${repo.fullName} has no starter issues`);
-    if (repo.issues.length > BOARD_LIMITS.maxIssuesPerRepo) {
-      throw new Error(`${repo.fullName} too many issues stored`);
-    }
-  }
+  const issueCount = repos.reduce((n, r) => n + r.issues.length, 0);
+  return { ...data, repos, repoCount: repos.length, issueCount };
 }
 
 async function main() {
@@ -411,31 +412,30 @@ async function main() {
   }
 
   const capped = capBoard(scored);
-  const issueCount = capped.reduce((n, r) => n + r.issues.length, 0);
-  const data: LatestData = {
-    generatedAt: new Date().toISOString(),
-    source: "github-actions",
-    repoCount: capped.length,
-    issueCount,
-    categories: CATEGORY_DEFS.map((c) => c.slug),
-    repos: capped,
-  };
-
-  try {
-    validateBoard(data, now);
-  } catch (err) {
-    console.error(`[pulse] validation failed, keeping previous JSON: ${err instanceof Error ? err.message : err}`);
-    process.exit(1);
-  }
-
   if (capped.length === 0) {
     console.error("[pulse] zero repos passed filters; keeping previous JSON");
     process.exit(1);
   }
 
-  const catsWithRepos = new Set(capped.flatMap((r) => r.categories));
+  let data: LatestData = {
+    generatedAt: new Date().toISOString(),
+    source: "github-actions",
+    repoCount: capped.length,
+    issueCount: capped.reduce((n, r) => n + r.issues.length, 0),
+    categories: CATEGORY_DEFS.map((c) => c.slug),
+    repos: capped,
+  };
+
+  try {
+    data = sanitizeBoard(data, now);
+  } catch (err) {
+    console.error(`[pulse] validation failed, keeping previous JSON: ${err instanceof Error ? err.message : err}`);
+    process.exit(1);
+  }
+
+  const catsWithRepos = new Set(data.repos.flatMap((r) => r.categories));
   console.log(
-    `[pulse] writing ${capped.length} repos across ${catsWithRepos.size} categories; issues=${issueCount}; apiCalls=${client.apiCalls}; elapsed=${Math.round((Date.now() - started) / 1000)}s`,
+    `[pulse] writing ${data.repos.length} repos across ${catsWithRepos.size} categories; issues=${data.issueCount}; apiCalls=${client.apiCalls}; elapsed=${Math.round((Date.now() - started) / 1000)}s`,
   );
 
   writeOutputs(data);

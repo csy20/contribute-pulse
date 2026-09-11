@@ -316,6 +316,25 @@ export function passesHardFilters(input: HardFilterInput, now = new Date()): boo
   return true;
 }
 
+/** Final board snapshot checks. Drop a row instead of failing the whole crawl. */
+export function isBoardEligible(
+  repo: {
+    fullName?: string;
+    url?: string;
+    description?: string | null;
+    pushedAt?: string | null;
+    issues?: unknown[] | null;
+  },
+  now = new Date(),
+): boolean {
+  if (!repo.fullName || !repo.url) return false;
+  if (!repo.description?.trim()) return false;
+  if (!repo.pushedAt) return false;
+  if (daysBetween(repo.pushedAt, now) > BOARD_LIMITS.maxPushAgeDays) return false;
+  if (!repo.issues?.length) return false;
+  return true;
+}
+
 /** Keep at most 400 repos, 80 per category. Higher scores win. */
 export function capBoard(repos: Repo[]): Repo[] {
   const sorted = [...repos].sort(

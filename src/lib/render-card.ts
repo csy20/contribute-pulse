@@ -54,7 +54,7 @@ export function renderEmptyState(kind: "filters" | "search" | "category"): strin
     kind === "search"
       ? "No repositories match that search. Try a language, topic, or owner/name."
       : kind === "category"
-        ? "Nothing in this category right now. The daily crawl only keeps licensed, recently pushed projects with starter labels."
+        ? "Nothing in this category right now. The crawl only keeps licensed, recently pushed projects with starter labels."
         : "No repositories match these filters. Try clearing language, lowering min stars, or turning off “Beginner friendly only”.";
   const action =
     kind === "filters"
