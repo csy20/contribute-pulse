@@ -50,9 +50,6 @@ const { searchValue = "", home = false } = Astro.props;
     }
 
     <div class="ml-auto flex shrink-0 items-center gap-4">
-      <a href={pathTo("about/")} class="inline-flex min-h-11 items-center text-sm text-moss hover:text-ink">
-        About
-      </a>
       <a
         class="inline-flex min-h-11 items-center gap-1.5 text-sm text-moss hover:text-ink"
         href="https://coff.ee/the__csy20"
@@ -72,6 +69,9 @@ const { searchValue = "", home = false } = Astro.props;
           <path d="M8 4c.4 1 .4 2 0 3M12 4c.4 1 .4 2 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
         </svg>
         <span><span class="hidden min-[480px]:inline">Buy me a </span>coffee</span>
+      </a>
+      <a href={pathTo("about/")} class="inline-flex min-h-11 items-center text-sm text-moss hover:text-ink">
+        About
       </a>
     </div>
   </nav>
