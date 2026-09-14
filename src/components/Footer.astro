@@ -22,10 +22,26 @@ const nextCrawl = nextCrawlLabel();
       <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>.
       <span class="block" data-next-crawl>{nextCrawl} · {CRAWL_SCHEDULE_HINT}</span>
     </p>
-    <p class="flex flex-wrap gap-x-5 gap-y-1 sm:justify-end">
+    <p class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:justify-end">
       <a class="text-ink/80 hover:text-ink hover:underline" href={pathTo("about/")}>About</a>
       <a class="text-ink/80 hover:text-ink hover:underline" href="https://github.com/csy20/contribute-pulse">
         Source
+      </a>
+      <a
+        class="inline-flex items-center gap-1.5 text-ink/80 hover:text-ink hover:underline"
+        href="https://coff.ee/the__csy20"
+        rel="noopener noreferrer"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M4 8h12v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Z"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"></path>
+          <path d="M16 10h2.2A2.8 2.8 0 0 1 21 12.8v0A2.8 2.8 0 0 1 18.2 15.6H16" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+          <path d="M8 4c.4 1 .4 2 0 3M12 4c.4 1 .4 2 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        </svg>
+        Buy me a coffee
       </a>
       <span>MIT</span>
     </p>
