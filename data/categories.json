@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28T08:38:23.629Z",
+  "generatedAt": "2026-09-28T20:31:59.198Z",
   "categories": [
     {
       "slug": "ai-ml",
@@ -9,7 +9,7 @@
     {
       "slug": "data",
       "name": "Data / Analytics",
-      "count": 68
+      "count": 61
     },
     {
       "slug": "web",
@@ -19,17 +19,17 @@
     {
       "slug": "backend",
       "name": "Backend / APIs",
-      "count": 65
+      "count": 73
     },
     {
       "slug": "mobile",
       "name": "Mobile",
-      "count": 44
+      "count": 46
     },
     {
       "slug": "devops",
       "name": "DevOps / Cloud / Infra",
-      "count": 73
+      "count": 77
     },
     {
       "slug": "systems",
@@ -49,27 +49,27 @@
     {
       "slug": "security",
       "name": "Security",
-      "count": 51
+      "count": 46
     },
     {
       "slug": "gamedev",
       "name": "Game Development",
-      "count": 33
+      "count": 31
     },
     {
       "slug": "design",
       "name": "Design / UI kits",
-      "count": 26
+      "count": 29
     },
     {
       "slug": "docs",
       "name": "Docs / Education / Content",
-      "count": 25
+      "count": 39
     },
     {
       "slug": "social-good",
       "name": "Civic / Social impact",
-      "count": 10
+      "count": 14
     },
     {
       "slug": "other",
