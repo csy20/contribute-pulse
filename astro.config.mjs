@@ -29,7 +29,9 @@ const isUserSite = repoName && owner && repoName === `${owner}.github.io`;
 const onVercel = Boolean(process.env.VERCEL);
 const base =
   process.env.BASE_PATH ||
-  (process.env.GITHUB_ACTIONS && !onVercel && repoName && !isUserSite ? `/${repoName}/` : "/");
+  (process.env.GITHUB_ACTIONS && !onVercel && repoName && !isUserSite
+    ? `/${repoName}/`
+    : "/");
 
 const site =
   process.env.SITE_URL ||
@@ -44,6 +46,7 @@ export default defineConfig({
   base,
   output: "static",
   trailingSlash: "always",
+  devToolbar: { enabled: false },
   integrations: [copyBoardData(), sitemap()],
   vite: {
     plugins: [tailwindcss()],

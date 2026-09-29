@@ -1,6 +1,11 @@
 import type { CategorySlug, LatestData, Repo } from "../../scripts/types.ts";
 import { loadLatest, hydrateRelativeTimes } from "./client-data.ts";
-import { applyFilters, languagesIn, type BoardFilters, type SortKey } from "./search.ts";
+import {
+  applyFilters,
+  languagesIn,
+  type BoardFilters,
+  type SortKey,
+} from "./search.ts";
 import { renderEmptyState, renderRepoCard } from "./render-card.ts";
 
 function numOrNull(value: string): number | null {
@@ -23,11 +28,20 @@ function readFilters(form: HTMLFormElement): BoardFilters {
   };
 }
 
-function fillLanguages(select: HTMLSelectElement, repos: Repo[], current: string) {
+function fillLanguages(
+  select: HTMLSelectElement,
+  repos: Repo[],
+  current: string,
+) {
   const langs = languagesIn(repos);
-  const keepFirst = select.querySelector("option")?.outerHTML ?? `<option value="">Any language</option>`;
+  const keepFirst =
+    select.querySelector("option")?.outerHTML ??
+    `<option value="">Any language</option>`;
   select.innerHTML =
-    keepFirst + langs.map((l) => `<option value="${l.replace(/"/g, "&quot;")}">${l}</option>`).join("");
+    keepFirst +
+    langs
+      .map((l) => `<option value="${l.replace(/"/g, "&quot;")}">${l}</option>`)
+      .join("");
   if (current && langs.includes(current)) select.value = current;
 }
 
@@ -71,7 +85,6 @@ export function initBoard() {
 
   form.addEventListener("submit", (e) => e.preventDefault());
   form.addEventListener("input", refresh);
-  form.addEventListener("change", refresh);
   grid.addEventListener("click", (event) => {
     const target = event.target as HTMLElement | null;
     if (!target?.closest("[data-clear-filters]")) return;

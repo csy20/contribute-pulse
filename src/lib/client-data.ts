@@ -26,6 +26,21 @@ export async function loadLatest(): Promise<LatestData | null> {
 
 export function hydrateRelativeTimes(root: ParentNode = document): void {
   const now = Date.now();
+  root.querySelectorAll<HTMLImageElement>(".repo-avatar").forEach((img) => {
+    if (img.dataset.avatarBound) return;
+    img.dataset.avatarBound = "true";
+    const showFallback = () => {
+      img.hidden = true;
+    };
+    img.addEventListener("error", showFallback, { once: true });
+    if (img.complete && img.naturalWidth === 0) showFallback();
+  });
+  root.querySelectorAll<HTMLElement>("[data-snapshot-status]").forEach((el) => {
+    el.classList.toggle(
+      "snapshot-stale",
+      isStale(el.dataset.generatedAt ?? "", now),
+    );
+  });
   root.querySelectorAll<HTMLElement>("[data-stale-banner]").forEach((el) => {
     const generatedAt = el.getAttribute("data-generated-at") ?? "";
     const sample = el.getAttribute("data-source") === "sample";
@@ -39,27 +54,32 @@ export function hydrateRelativeTimes(root: ParentNode = document): void {
   root.querySelectorAll<HTMLElement>("[data-next-crawl]").forEach((el) => {
     el.textContent = nextCrawlLabel(now);
   });
-  root.querySelectorAll<HTMLTimeElement>("time[data-relative]").forEach((el) => {
-    const iso = el.dateTime || el.getAttribute("datetime");
-    if (!iso) return;
-    const then = new Date(iso).getTime();
-    if (Number.isNaN(then)) return;
-    const diff = now - then;
-    const mins = Math.round(diff / 60_000);
-    let label = "just now";
-    if (Math.abs(mins) >= 1 && Math.abs(mins) < 60) label = `${mins}m ago`;
-    else if (Math.abs(mins) >= 60) {
-      const hours = Math.round(mins / 60);
-      if (Math.abs(hours) < 24) label = `${hours}h ago`;
-      else {
-        const days = Math.round(hours / 24);
-        if (Math.abs(days) < 45) label = `${days}d ago`;
+  root
+    .querySelectorAll<HTMLTimeElement>("time[data-relative]")
+    .forEach((el) => {
+      const iso = el.dateTime || el.getAttribute("datetime");
+      if (!iso) return;
+      const then = new Date(iso).getTime();
+      if (Number.isNaN(then)) return;
+      const diff = now - then;
+      const mins = Math.round(diff / 60_000);
+      let label = "just now";
+      if (Math.abs(mins) >= 1 && Math.abs(mins) < 60) label = `${mins}m ago`;
+      else if (Math.abs(mins) >= 60) {
+        const hours = Math.round(mins / 60);
+        if (Math.abs(hours) < 24) label = `${hours}h ago`;
         else {
-          const months = Math.round(days / 30);
-          label = Math.abs(months) < 18 ? `${months}mo ago` : `${Math.round(days / 365)}y ago`;
+          const days = Math.round(hours / 24);
+          if (Math.abs(days) < 45) label = `${days}d ago`;
+          else {
+            const months = Math.round(days / 30);
+            label =
+              Math.abs(months) < 18
+                ? `${months}mo ago`
+                : `${Math.round(days / 365)}y ago`;
+          }
         }
       }
-    }
-    el.textContent = label;
-  });
+      el.textContent = label;
+    });
 }

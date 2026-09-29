@@ -14,14 +14,20 @@ function debounce<T extends (...args: never[]) => void>(fn: T, ms: number): T {
 
 export function initHomeSearch() {
   const input = document.querySelector<HTMLInputElement>("[data-home-search]");
-  const headerInput = document.querySelector<HTMLInputElement>("[data-header-search]");
+  const headerInput = document.querySelector<HTMLInputElement>(
+    "[data-header-search]",
+  );
   const results = document.querySelector<HTMLElement>("[data-search-results]");
   const grid = document.querySelector<HTMLElement>("[data-search-grid]");
   const heading = document.querySelector<HTMLElement>("[data-search-heading]");
   const rest = document.querySelector<HTMLElement>("[data-home-default]");
-  const sortSelect = document.querySelector<HTMLSelectElement>("[data-search-sort]");
+  const sortSelect =
+    document.querySelector<HTMLSelectElement>("[data-search-sort]");
   const catRow = document.querySelector<HTMLElement>("[data-search-cats]");
   if (!input || !results || !grid || !rest) return;
+  const searchChips =
+    document.querySelectorAll<HTMLButtonElement>("[data-search-chip]");
+  let searchVersion = 0;
 
   const currentSort = (): SortKey => (sortSelect?.value as SortKey) || "score";
 
@@ -33,7 +39,13 @@ export function initHomeSearch() {
   }
 
   const run = async (raw: string) => {
+    const version = ++searchVersion;
     const q = raw.trim();
+    searchChips.forEach((chip) => {
+      const selected =
+        chip.dataset.searchChip?.toLowerCase() === q.toLowerCase();
+      chip.setAttribute("aria-pressed", String(selected));
+    });
     const url = new URL(window.location.href);
     if (q) url.searchParams.set("q", q);
     else url.searchParams.delete("q");
@@ -46,6 +58,7 @@ export function initHomeSearch() {
     }
 
     const data = await loadLatest();
+    if (version !== searchVersion) return;
     if (!data) {
       rest.hidden = false;
       results.hidden = true;
@@ -54,10 +67,18 @@ export function initHomeSearch() {
 
     rest.hidden = true;
     results.hidden = false;
-    const rows = applyFilters(data.repos, { ...DEFAULT_FILTERS, query: q, sort: currentSort() });
-    if (heading) heading.textContent = `${rows.length} ${rows.length === 1 ? "match" : "matches"} for “${q}”`;
+    const rows = applyFilters(data.repos, {
+      ...DEFAULT_FILTERS,
+      query: q,
+      sort: currentSort(),
+    });
+    if (heading)
+      heading.textContent = `${rows.length} ${rows.length === 1 ? "match" : "matches"} for “${q}”`;
     if (catRow) {
-      const slugs = [...new Set(rows.flatMap((r) => r.categories))].slice(0, 6) as CategorySlug[];
+      const slugs = [...new Set(rows.flatMap((r) => r.categories))].slice(
+        0,
+        6,
+      ) as CategorySlug[];
       catRow.innerHTML = slugs
         .map(
           (slug) =>
@@ -65,7 +86,9 @@ export function initHomeSearch() {
         )
         .join("");
     }
-    grid.innerHTML = rows.length ? rows.map(renderRepoCard).join("") : renderEmptyState("search");
+    grid.innerHTML = rows.length
+      ? rows.map(renderRepoCard).join("")
+      : renderEmptyState("search");
     hydrateRelativeTimes(grid);
   };
 
@@ -92,7 +115,29 @@ export function initHomeSearch() {
     if (input.value.trim()) void run(input.value);
   });
 
-  document.querySelectorAll<HTMLButtonElement>("[data-search-chip]").forEach((chip) => {
+  document.addEventListener("keydown", (event) => {
+    const target = event.target as HTMLElement | null;
+    const editing = target?.closest(
+      "input, textarea, select, [contenteditable]",
+    );
+    if (
+      event.key === "/" &&
+      !editing &&
+      !event.metaKey &&
+      !event.ctrlKey &&
+      !event.altKey
+    ) {
+      event.preventDefault();
+      input.focus();
+    }
+    if (event.key === "Escape" && target === input) {
+      input.value = "";
+      if (headerInput) headerInput.value = "";
+      void run("");
+    }
+  });
+
+  searchChips.forEach((chip) => {
     chip.addEventListener("click", () => {
       const value = chip.dataset.searchChip ?? "";
       input.value = value;
