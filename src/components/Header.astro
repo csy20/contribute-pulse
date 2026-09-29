@@ -1,77 +1,136 @@
 ---
 import { pathTo } from "../lib/paths.ts";
-
 interface Props {
   searchValue?: string;
   home?: boolean;
 }
-
 const { searchValue = "", home = false } = Astro.props;
+const isAbout = Astro.url.pathname.endsWith("/about/");
 ---
 
-<header data-header class="sticky top-0 z-30 border-b border-line/80 bg-canvas/80 backdrop-blur-md">
-  <nav class="shell flex h-[52px] items-center gap-3 sm:h-14" aria-label="Primary">
-    <a href={pathTo("")} class="flex min-w-0 items-center gap-2 text-ink hover:text-ink">
-      <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <path
-          d="M3 16h5l2.5-7 4 14 3-9 2 4H29"
-          stroke="currentColor"
-          class="text-lime"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-      </svg>
-      <span class="truncate text-[15px] tracking-tight">
-        <span class="hidden font-medium min-[420px]:inline">Contribute</span>
-        <span class="font-display text-[1.15rem] leading-none min-[420px]:ml-1">Pulse</span>
+<header data-header class="site-header">
+  <nav class="shell header-nav" aria-label="Primary">
+    <a href={pathTo("")} class="brand" aria-label="Contribute Pulse home">
+      <span class="brand-mark">
+        <svg
+          width="25"
+          height="25"
+          viewBox="0 0 32 32"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 16h5l2.5-7 4 14 3-9 2 4H29"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+      <span>
+        contribute<span class="brand-pulse">pulse</span>
+        <span class="brand-dot">.</span>
       </span>
     </a>
-
-    {
-      !home && (
-        <form class="search-wrap min-w-0 flex-1" action={pathTo("")} method="get" role="search">
-          <label class="sr-only" for="header-search">Search the board</label>
-          <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5"></circle>
-            <path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
-          </svg>
-          <input
-            id="header-search"
-            data-header-search
-            type="search"
-            name="q"
-            value={searchValue}
-            placeholder="Search"
-            class="field h-11 min-h-11 pl-8 text-sm"
-            autocomplete="off"
-          />
-        </form>
-      )
-    }
-
-    <div class="ml-auto flex shrink-0 items-center gap-4">
+    <div class="primary-links">
       <a
-        class="inline-flex min-h-11 items-center gap-1.5 text-sm text-moss hover:text-ink"
+        href={pathTo("") + "#explore"}
+        class:list={["nav-link", { selected: home }]}
+        aria-current={home ? "page" : undefined}
+      >
+        Explore
+      </a>
+      <a
+        href={pathTo("about/")}
+        class:list={["nav-link", { selected: isAbout }]}
+        aria-current={isAbout ? "page" : undefined}
+      >
+        How it works
+      </a>
+    </div>
+    {!home && (
+      <form
+        class="search-wrap header-search"
+        action={pathTo("")}
+        method="get"
+        role="search"
+      >
+        <label class="sr-only" for="header-search">
+          Search the board
+        </label>
+        <svg
+          class="search-icon"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle
+            cx="7"
+            cy="7"
+            r="4.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="m10.5 10.5 3.5 3.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
+        <input
+          id="header-search"
+          data-header-search
+          type="search"
+          name="q"
+          value={searchValue}
+          placeholder="Find a project…"
+          class="field pl-9"
+          autocomplete="off"
+        />
+      </form>
+    )}
+    <div class="header-actions">
+      <a
+        class="source-link"
+        href="https://github.com/csy20/contribute-pulse"
+        aria-label="Contribute Pulse on GitHub"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.8-1.33-3.8-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.71 2.62 1.22 3.26.93.1-.72.4-1.22.71-1.5-2.5-.29-5.13-1.25-5.13-5.54 0-1.22.44-2.22 1.16-3-.12-.28-.5-1.42.11-2.97 0 0 .95-.3 3.08 1.15a10.75 10.75 0 0 1 5.6 0c2.14-1.45 3.08-1.15 3.08-1.15.61 1.55.23 2.69.11 2.97.72.78 1.16 1.78 1.16 3 0 4.3-2.63 5.25-5.14 5.53.4.35.76 1.03.76 2.08v3.09c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z" />
+        </svg>
+      </a>
+      <a
+        class="coffee-link"
         href="https://coff.ee/the__csy20"
         rel="noopener noreferrer"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
-            d="M4 8h12v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Z"
+            d="M4 8h12v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Zm12 2h2a3 3 0 0 1 0 6h-2M8 3v2m4-2v2M3 22h15"
             stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linejoin="round"></path>
-          <path
-            d="M16 10h2.2A2.8 2.8 0 0 1 21 12.8v0A2.8 2.8 0 0 1 18.2 15.6H16"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linejoin="round"></path>
-          <path d="M8 4c.4 1 .4 2 0 3M12 4c.4 1 .4 2 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
-        <span><span class="hidden min-[480px]:inline">Buy me a </span>coffee</span>
-      </a>
-      <a href={pathTo("about/")} class="inline-flex min-h-11 items-center text-sm text-moss hover:text-ink">
-        About
+        <span>Buy me a coffee</span>
+        <span aria-hidden="true">↗</span>
       </a>
     </div>
   </nav>

@@ -1,7 +1,16 @@
-import { CATEGORY_NAME, type CategorySlug, type Repo } from "../../scripts/types.ts";
-import { escapeHtml, formatScore, formatStars, relativeTime } from "./format.ts";
+import {
+  CATEGORY_NAME,
+  type CategorySlug,
+  type Repo,
+} from "../../scripts/types.ts";
+import {
+  escapeHtml,
+  formatScore,
+  formatStars,
+  relativeTime,
+} from "./format.ts";
 import { categoryPath, pathTo, repoPath } from "./paths.ts";
-import { avatarSrcSet, avatarUrl, languageColor, PULSE_TICK, scoreCapsuleClass } from "./ui.ts";
+import { avatarSrcSet, avatarUrl, languageColor, PULSE_TICK } from "./ui.ts";
 
 export function renderRepoCard(repo: Repo): string {
   const why = repo.why[0] ?? "Active project with room for contributors";
@@ -17,39 +26,37 @@ export function renderRepoCard(repo: Repo): string {
     ? `<span class="pill"><span class="lang-dot" style="background:${languageColor(repo.language)}"></span>${escapeHtml(repo.language)}</span>`
     : "";
   const issueLink = issue
-    ? `<a class="text-sm text-moss hover:text-ink hover:underline" href="${escapeHtml(issue.url)}" rel="noopener noreferrer">Issue #${issue.number}</a>`
+    ? `<a class="repo-issue" href="${escapeHtml(issue.url)}" rel="noopener noreferrer"><svg class="issue-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg><span><span class="issue-caption">STARTER ISSUE · #${issue.number}</span><span class="repo-issue-title" title="${escapeHtml(issue.title)}">${escapeHtml(issue.title)}</span></span><svg class="issue-arrow" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15 15 5M5 5h10v10"/></svg></a>`
     : "";
   const score = formatScore(repo.contributeScore);
+  const scorePercent = Math.max(0, Math.min(100, repo.contributeScore));
+  const ownerInitials = escapeHtml(repo.owner.slice(0, 2).toUpperCase());
   const desc = escapeHtml(repo.description);
 
-  return `<article class="card flex flex-col gap-3">
-    <div class="flex items-start justify-between gap-3">
-      <a class="flex min-w-0 items-center gap-2.5" href="${escapeHtml(repo.url)}" rel="noopener noreferrer">
-        <img src="${escapeHtml(avatarUrl(repo.owner, 64))}" srcset="${escapeHtml(avatarSrcSet(repo.owner))}" sizes="28px" alt="" width="28" height="28" class="h-7 w-7 rounded-[6px] bg-panel-2" loading="lazy" />
-        <span class="min-w-0 leading-snug">
-          <span class="block truncate text-[13px] text-moss">${escapeHtml(repo.owner)}</span>
-          <span class="block truncate font-medium text-ink">${escapeHtml(repo.name)}</span>
-        </span>
+  return `<article class="card repo-card">
+    <div class="repo-card-heading">
+      <a class="repo-identity" href="${escapeHtml(repoPath(repo.owner, repo.name))}">
+        <span class="repo-avatar-wrap" aria-hidden="true"><span class="repo-avatar-fallback">${ownerInitials}</span><img src="${escapeHtml(avatarUrl(repo.owner, 80))}" srcset="${escapeHtml(avatarSrcSet(repo.owner))}" sizes="40px" alt="" width="40" height="40" class="repo-avatar" loading="lazy" /></span>
+        <span class="repo-name-wrap"><span class="repo-owner">${escapeHtml(repo.owner)} /</span><span class="repo-name">${escapeHtml(repo.name)}</span></span>
       </a>
-      <span class="${scoreCapsuleClass(repo.contributeScore)}" title="Contribute score ${escapeHtml(score)} out of 100 — freshness and maintainer activity weighted highest">${escapeHtml(score)}<span class="score-unit">/100</span></span>
+      <span class="repo-score" title="Contribute score ${escapeHtml(score)} out of 100 — freshness and maintainer activity weighted highest" aria-label="Pulse score ${escapeHtml(score)} out of 100"><svg class="repo-score-gauge" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle class="score-gauge-track" cx="16" cy="16" r="12.5" stroke-width="2.5"/><circle class="score-gauge-fill" cx="16" cy="16" r="12.5" stroke-width="2.5" pathLength="100" stroke-dasharray="${scorePercent} 100" stroke-linecap="round" transform="rotate(-90 16 16)"/></svg><span class="repo-score-copy"><span class="repo-score-number">${escapeHtml(score)}</span><span class="repo-score-caption">Pulse / 100</span></span></span>
     </div>
-    <p class="line-clamp-2 text-sm leading-snug text-moss" title="${desc}">${desc}</p>
-    <div class="flex flex-wrap gap-1.5">${lang}${cats}</div>
-    <p class="flex gap-2 text-[13px] leading-snug text-ink/90">${PULSE_TICK}<span>${escapeHtml(why)}</span></p>
-    <div class="grid grid-cols-3 gap-2 border-t border-line pt-3">
-      <div class="meta-cell"><span class="lbl">Stars</span><span class="val">${escapeHtml(formatStars(repo.stars))}</span></div>
-      <div class="meta-cell"><span class="lbl">Pushed</span><span class="val"><time datetime="${escapeHtml(repo.pushedAt)}" data-relative>${escapeHtml(relativeTime(repo.pushedAt))}</time></span></div>
-      <div class="meta-cell"><span class="lbl">Issues</span><span class="val">${repo.issues.length}</span></div>
+    <p class="repo-description" title="${desc}">${desc}</p>
+    <div class="repo-tags">${lang}${cats}</div>
+    <p class="repo-signal">${PULSE_TICK}<span>${escapeHtml(why)}</span></p>
+    <div class="repo-meta">
+      <span><svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8L10 2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>${escapeHtml(formatStars(repo.stars))}</span>
+      <span><span class="repo-activity-dot" aria-hidden="true"></span>Pushed <time datetime="${escapeHtml(repo.pushedAt)}" data-relative>${escapeHtml(relativeTime(repo.pushedAt))}</time></span>
+      <span>${repo.issues.length} ${repo.issues.length === 1 ? "starter issue" : "starter issues"}</span>
     </div>
-    <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2">
-      <a class="btn-ghost text-xs" href="${escapeHtml(repo.url)}" rel="noopener noreferrer">Open on GitHub</a>
-      ${issueLink}
-      <a class="text-sm text-moss hover:text-ink hover:underline" href="${escapeHtml(repoPath(repo.owner, repo.name))}">Details</a>
-    </div>
+    ${issueLink}
+    <div class="repo-card-footer"><a class="repo-github" href="${escapeHtml(repo.url)}" rel="noopener noreferrer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 6v-3.8c0-1 .1-1.6-.5-2.2 3.5-.4 7-1.7 7-7.1 0-1.5-.5-2.8-1.4-3.8.2-.7.2-2-.3-3.1 0 0-1.3-.4-4.2 1.6a15 15 0 0 0-7.6 0C5.1 1.6 3.8 2 3.8 2c-.5 1.1-.5 2.4-.3 3.1A5.8 5.8 0 0 0 2 8.9c0 5.4 3.5 6.7 7 7.1-.6.6-.5 1.3-.5 2.2V23"/></svg>Open on GitHub <span aria-hidden="true">↗</span></a><a class="repo-details" href="${escapeHtml(repoPath(repo.owner, repo.name))}">View details <span aria-hidden="true">→</span></a></div>
   </article>`;
 }
 
-export function renderEmptyState(kind: "filters" | "search" | "category"): string {
+export function renderEmptyState(
+  kind: "filters" | "search" | "category",
+): string {
   const copy =
     kind === "search"
       ? "No repositories match that search. Try a language, topic, or owner/name."

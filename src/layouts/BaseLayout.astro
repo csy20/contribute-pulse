@@ -23,6 +23,11 @@ const {
 const origin = Astro.site ?? new URL("https://csy20.me");
 const canonical = new URL(Astro.url.pathname, origin).toString();
 const ogImage = new URL(pathTo("og.png"), origin).toString();
+const fontFaces = `
+  @font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap; src: url("${pathTo("fonts/inter-latin.woff2")}") format("woff2"); }
+  @font-face { font-family: "Instrument Serif"; font-style: normal; font-weight: 400; font-display: swap; src: url("${pathTo("fonts/instrument-serif-latin-normal-400.woff2")}") format("woff2"); }
+  @font-face { font-family: "Instrument Serif"; font-style: italic; font-weight: 400; font-display: swap; src: url("${pathTo("fonts/instrument-serif-latin-italic-400.woff2")}") format("woff2"); }
+`;
 ---
 
 <!doctype html>
@@ -30,17 +35,26 @@ const ogImage = new URL(pathTo("og.png"), origin).toString();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0a0b09" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f8f9f6" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={pathTo("favicon.svg")} type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href={pathTo("fonts/inter-latin.woff2")}
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
+    <link
+      rel="preload"
+      href={pathTo("fonts/instrument-serif-latin-italic-400.woff2")}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <style is:global set:html={fontFaces} />
     <title>{title}</title>
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Contribute Pulse" />
@@ -48,7 +62,10 @@ const ogImage = new URL(pathTo("og.png"), origin).toString();
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:alt" content="Contribute Pulse — find a repo that is alive and will notice your pull request." />
+    <meta
+      property="og:image:alt"
+      content="Contribute Pulse — find a repo that is alive and will notice your pull request."
+    />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -57,10 +74,12 @@ const ogImage = new URL(pathTo("og.png"), origin).toString();
     <meta name="twitter:image" content={ogImage} />
   </head>
   <body class="font-sans antialiased" data-page={home ? "home" : "inner"}>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main">
+      Skip to content
+    </a>
     <Header searchValue={searchValue} home={home} />
     <StaleBanner generatedAt={latest.generatedAt} source={latest.source} />
-    <main id="main" class="shell pb-20 pt-8 sm:pt-10">
+    <main id="main" class="shell main-content">
       <slot />
     </main>
     <Footer />

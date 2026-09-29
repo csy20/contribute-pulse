@@ -1,49 +1,25 @@
 ---
 import { pathTo } from "../lib/paths.ts";
-import { latest } from "../lib/data.ts";
-import { CRAWL_SCHEDULE_HINT, nextCrawlLabel, relativeTime } from "../lib/format.ts";
-
-const nextCrawl = nextCrawlLabel();
 ---
 
-<footer class="border-t border-line">
-  <div
-    class="shell grid gap-6 py-10 text-sm text-moss sm:grid-cols-3"
-  >
+<footer class="site-footer">
+  <div class="shell footer-inner">
     <p>
-      <span class="font-medium text-ink/80">Contribute</span>
-      <span class="font-display ml-1 text-ink">Pulse</span>
-      <span class="mt-1 block max-w-xs leading-relaxed">
-        A static board of repos that are alive enough to notice a pull request.
+      <a class="footer-brand" href={pathTo("")}>
+        contributepulse<span class="brand-dot">.</span>
+      </a>
+      <span class="footer-tagline">
+        A little signal for your next contribution.
       </span>
     </p>
-    <p>
-      Data generated
-      <time datetime={latest.generatedAt} data-relative>{relativeTime(latest.generatedAt)}</time>.
-      <span class="block" data-next-crawl>{nextCrawl} · {CRAWL_SCHEDULE_HINT}</span>
-    </p>
-    <p class="flex flex-wrap items-center gap-x-5 gap-y-1 sm:justify-end">
-      <a class="text-ink/80 hover:text-ink hover:underline" href={pathTo("about/")}>About</a>
-      <a class="text-ink/80 hover:text-ink hover:underline" href="https://github.com/csy20/contribute-pulse">
-        Source
-      </a>
-      <a
-        class="inline-flex items-center gap-1.5 text-ink/80 hover:text-ink hover:underline"
-        href="https://coff.ee/the__csy20"
-        rel="noopener noreferrer"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M4 8h12v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Z"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linejoin="round"></path>
-          <path d="M16 10h2.2A2.8 2.8 0 0 1 21 12.8v0A2.8 2.8 0 0 1 18.2 15.6H16" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
-          <path d="M8 4c.4 1 .4 2 0 3M12 4c.4 1 .4 2 0 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
-        </svg>
-        Buy me a coffee
+    <p class="footer-caption">Made for the people who make open source.</p>
+    <nav class="footer-links" aria-label="Footer">
+      <a href={pathTo("about/")}>About</a>
+      <a href="https://github.com/csy20/contribute-pulse">GitHub ↗</a>
+      <a href="https://coff.ee/the__csy20" rel="noopener noreferrer">
+        Buy me a coffee ↗
       </a>
       <span>MIT</span>
-    </p>
+    </nav>
   </div>
 </footer>
