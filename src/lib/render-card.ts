@@ -34,6 +34,7 @@ export function renderRepoCard(repo: Repo): string {
   const desc = escapeHtml(repo.description);
 
   return `<article class="card repo-card">
+    <div class="repo-card-main">
     <div class="repo-card-heading">
       <a class="repo-identity" href="${escapeHtml(repoPath(repo.owner, repo.name))}">
         <span class="repo-avatar-wrap" aria-hidden="true"><span class="repo-avatar-fallback">${ownerInitials}</span><img src="${escapeHtml(avatarUrl(repo.owner, 80))}" srcset="${escapeHtml(avatarSrcSet(repo.owner))}" sizes="40px" alt="" width="40" height="40" class="repo-avatar" loading="lazy" /></span>
@@ -50,6 +51,7 @@ export function renderRepoCard(repo: Repo): string {
       <span>${repo.issues.length} ${repo.issues.length === 1 ? "starter issue" : "starter issues"}</span>
     </div>
     ${issueLink}
+    </div>
     <div class="repo-card-footer"><a class="repo-github" href="${escapeHtml(repo.url)}" rel="noopener noreferrer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1-4-2-6-2m12 6v-3.8c0-1 .1-1.6-.5-2.2 3.5-.4 7-1.7 7-7.1 0-1.5-.5-2.8-1.4-3.8.2-.7.2-2-.3-3.1 0 0-1.3-.4-4.2 1.6a15 15 0 0 0-7.6 0C5.1 1.6 3.8 2 3.8 2c-.5 1.1-.5 2.4-.3 3.1A5.8 5.8 0 0 0 2 8.9c0 5.4 3.5 6.7 7 7.1-.6.6-.5 1.3-.5 2.2V23"/></svg>Open on GitHub <span aria-hidden="true">↗</span></a><a class="repo-details" href="${escapeHtml(repoPath(repo.owner, repo.name))}">View details <span aria-hidden="true">→</span></a></div>
   </article>`;
 }
@@ -69,9 +71,10 @@ export function renderEmptyState(
       : kind === "search"
         ? `<a class="btn-ghost mt-4" href="${pathTo("")}">Back to the board</a>`
         : "";
-  return `<div class="card col-span-full py-10 text-center">
-    <p class="font-display text-[1.65rem] tracking-tight text-ink">Nothing here yet</p>
-    <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-moss">${copy}</p>
+  return `<div class="card empty-state">
+    <span class="empty-state-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5" stroke-linecap="round"/></svg></span>
+    <p class="empty-state-title">Nothing here yet</p>
+    <p class="empty-state-copy">${copy}</p>
     ${action}
   </div>`;
 }

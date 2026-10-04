@@ -12,16 +12,39 @@ const sample = source === "sample";
 ---
 
 <div
-  class="stale-banner py-2 text-sm text-moss"
+  class="stale-banner"
   data-stale-banner
   data-generated-at={generatedAt}
   data-source={source}
   hidden={!sample && !stale}
 >
-  <div class="shell">
-    <span data-stale-sample hidden={!sample}>Bundled sample data is showing until the next GitHub crawl.</span>
-    <span data-stale-old hidden={!stale}>
-      {sample ? " " : ""}Board data is older than 36 hours — treat activity signals as stale.
+  <div class="shell stale-banner-content">
+    <svg
+      class="stale-banner-icon"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="m10.3 4.8-7 12.1A2 2 0 0 0 5 20h14a2 2 0 0 0 1.7-3.1l-7-12.1a2 2 0 0 0-3.4 0Z"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M12 9v4m0 3h.01"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+    </svg>
+    <span class="stale-banner-message">
+      <span data-stale-sample hidden={!sample}>Bundled sample data is showing until the next GitHub crawl.</span>
+      <span data-stale-old hidden={!stale}>
+        {sample ? " " : ""}Board data is older than 36 hours — treat activity signals as stale.
+      </span>
     </span>
   </div>
 </div>

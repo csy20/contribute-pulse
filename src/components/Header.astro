@@ -98,6 +98,7 @@ const isAbout = Astro.url.pathname.endsWith("/about/");
         class="source-link"
         href="https://github.com/csy20/contribute-pulse"
         aria-label="Contribute Pulse on GitHub"
+        title="View the source on GitHub"
       >
         <svg
           width="20"
@@ -113,6 +114,7 @@ const isAbout = Astro.url.pathname.endsWith("/about/");
         class="coffee-link"
         href="https://coff.ee/the__csy20"
         rel="noopener noreferrer"
+        aria-label="Buy me a coffee"
       >
         <svg
           width="17"
@@ -129,8 +131,8 @@ const isAbout = Astro.url.pathname.endsWith("/about/");
             stroke-linejoin="round"
           />
         </svg>
-        <span>Buy me a coffee</span>
-        <span aria-hidden="true">↗</span>
+        <span class="coffee-label">Buy me a coffee</span>
+        <span class="coffee-arrow" aria-hidden="true">↗</span>
       </a>
     </div>
   </nav>

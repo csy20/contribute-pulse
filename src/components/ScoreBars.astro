@@ -16,7 +16,7 @@ const rows: { key: keyof ScoreBreakdown; label: string; weight: string }[] = [
 ];
 ---
 
-<div class="grid gap-3.5">
+<div class="score-bars">
   {
     rows.map((row) => {
       const value = breakdown[row.key];
@@ -26,12 +26,12 @@ const rows: { key: keyof ScoreBreakdown; label: string; weight: string }[] = [
           role="img"
           aria-label={`${row.label} ${value.toFixed(0)} of 100, weight ${row.weight}`}
         >
-          <div class="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
+          <div class="score-bar-label">
             <span>
               {row.label}
-              <span class="ml-2 text-xs text-moss">{row.weight}</span>
+              <span class="score-weight">{row.weight}</span>
             </span>
-            <span class="font-mono text-xs tabular-nums text-moss">{value.toFixed(0)}</span>
+            <span class="score-value">{value.toFixed(0)}</span>
           </div>
           <div class="score-track">
             <div class="score-fill" style={`width: ${width}%`}></div>

@@ -24,11 +24,12 @@ const examples = ["Python", "TypeScript", "Rust", "good first issue"];
   home
 >
   <section class="board-intro" aria-labelledby="hero-title">
-    <div>
+    <div class="board-intro-copy">
+      <p class="page-kicker">Open source, open possibilities</p>
       <h1 id="hero-title">
         Find your next <em>contribution.</em>
       </h1>
-      <p>
+      <p class="board-intro-description">
         Discover open-source projects with active maintainers and a place to
         start.
       </p>
@@ -233,10 +234,10 @@ const examples = ["Python", "TypeScript", "Rust", "good first issue"];
         </select>
       </label>
     </div>
-    <div data-search-cats class="mt-4 flex flex-wrap gap-1.5"></div>
+    <div data-search-cats class="search-categories"></div>
     <div
       data-search-grid
-      class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+      class="board-grid"
     ></div>
   </section>
 
