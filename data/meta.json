@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-27T19:21:04.667Z",
+  "generatedAt": "2026-10-28T08:14:22.552Z",
   "nextUpdateHint": "02:00 and 14:00 UTC",
   "source": "github-actions",
   "repoCount": 400,
-  "issueCount": 1559,
+  "issueCount": 1543,
   "filters": {
     "minStars": 80,
     "maxStarsDefault": 80000,
